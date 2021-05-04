@@ -1,0 +1,13 @@
+Make,Proccessor,Frequency
+Apple,intel i3,5
+Apple,intel i5,25
+Apple,intel i7,31
+Dell,intel i3,15
+Dell,intel i5,21
+Dell,intel i7,16
+HP,intel i3,21
+HP,intel i5,28
+HP,intel i7,26
+Lenovo,intel i3,18
+Lenovo,intel i5,32
+Lenovo,intel i7,31

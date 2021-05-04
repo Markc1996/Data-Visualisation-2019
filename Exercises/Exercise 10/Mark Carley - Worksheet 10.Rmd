@@ -1,0 +1,478 @@
+---
+title: "Data Visualisation 2019 - Assignment 10 - Mark Carley - 20071864"
+output: html_notebook
+---
+
+####  List of R colors: http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+
+```{r}
+library(ggplot2)
+```
+
+
+# Review of R
+
+* This workbook is based on Assignment 1 to Assinment 9, previously covered during the semester.
+
+* There are no examples included in this workbook, instead you are expected to go through your previous assignments to fin similar questions, and use your answers there, to complete this workbook (Assignment 10).
+
+## Exercise 1 (see Assignment 2 for similar examples)
+
+A car dealership collected data on car-sales and organise it according to make and engine type, with the following data obtained
+
+|   __Make__    |  __Petrol__ |  __Diesel__  | 
+|---------------|-------------|--------------|
+|  Audi A4      |      6      |      7       |
+|  Audi A6      |      4      |      4       |
+|  BMW 3 Series |      5      |      4       |
+|  BMW 5 Series |      4      |      2       |
+|  VW Golf      |      7      |      9       |
+|  VW Passat    |      6      |      8       | 
+Given this data answer the following
+
+1. Identify the data type given.
+
+2. Create a __.csv__ file to tabulate this data.
+
+3. Create __two__ clustered bar plot from this data file, using different colours in each plot.
+
+4. Reorder these plots in order of __decreasing Petrol car__ sales.
+
+4. Which of these plots conveys the data in the clearest way?
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+1.
+
+The type of data displayed is a ordinal data type.
+
+2.
+
+```{r}
+Cars<- read.csv('cars.csv')
+```
+
+```{r}
+Cars
+```
+
+3.
+
+```{r}
+ggplot(data=Cars, aes(x=Make,y=Amount)) +   
+  geom_bar(aes(fill = Fuel), position = "dodge", stat = "identity")+
+  scale_fill_manual(values=c("blue", "red", "green"))
+```
+
+
+```{r}
+ggplot(data=Cars, aes(x=Make,y=Amount)) +   
+  geom_bar(aes(fill = Fuel), position = "dodge", stat = "identity")+
+  scale_fill_manual(values=c("gold", "dimgrey", "darkgreen"))
+```
+
+
+4.
+
+```{r}
+Cars$Make <- factor(Cars$Make, levels = c('vw golf', 'vw passat', 'audi a4', 'bmw 3 series', 'audi a6','bmw 5 series'))
+Cars
+```
+
+```{r}
+ggplot(data=Cars, aes(x=Make,y=Amount)) +   
+  geom_bar(aes(fill = Fuel), position = "dodge", stat = "identity")+
+  scale_fill_manual(values=c("blue", "red", "orange"))
+```
+
+5.
+
+The ordered plot of decreasing petrol fuel displays the clearest out of the two.
+
+
+
+
+# Exercise 2 (see Assignment 4 for similar examples)
+
+* The GDP per capita of 17 euro zone countries  of the world is given in the data set __Assignmnet10_Exercise2.csv__, which was sourced from the [World Bank](http://databank.worldbank.org/data/home.aspx), and is  available on Moodle.
+
+* The data is shown in the table below:
+
+```{r}
+Data2<-read.csv('Assignment10_Exercise2.csv')
+```
+
+```{r}
+Data2
+```
+
+Using the data given in this table, answer the following:
+
+1. Identify the data source type.
+
+2. Use a stem and leaf plot to represent the data.
+
+3. From the stem and leaf plot, determine if the data is skewed or centred.
+
+4. Find the median of the data set.
+
+5. Find the first and third quartiles ($Q_1$ and $Q_3$).
+
+6. Determine if the data set has any extreme outliers.
+
+7. Determine if the data set has any mild outliers.
+
+8. Identify the fences for the data set.
+
+9. Use a box plot to represent this data set.
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+1.
+
+The type of data shown is an ordinal data type.
+
+2.
+
+```{r}
+Distances <- c(47291,43324,25234,19705,45703,44470,18613,69331,31953,15594)
+stem(Distances, scale=2)
+```
+
+3.
+
+The data seems skewed to the left.
+
+4.
+
+```{r}
+median(Distances)
+```
+
+5.
+
+```{r}
+quantile(Distances)
+```
+
+1st - 21087.25 3rd - 45394.75
+
+
+6.
+
+```{r}
+boxplot.stats(Distances)$out
+```
+
+
+7.
+
+```{r}
+boxplot.stats(Distances)$out
+```
+
+8.
+
+```{r}
+IQR(Distances)
+```
+
+\\[
+Q_{1} = 21087\\ \\ Q_{3} = 45394\\ \\ M= 37638 \\ IQR= 24307
+\\]
+
+
+9.
+
+```{r}
+ggplot(Cars, aes(x ='data', y = Cars$GDP),xlab='GDP') + 
+       coord_flip()+                                                      
+       stat_boxplot(geom = "errorbar", width = 0.25,coef=1.5) +            
+       geom_boxplot(stat='boxplot',outlier.size=3,width=0.25,fill='steelblue4')+ 
+       ylab('GDP amount')+ 
+       xlab('')+ 
+       ggtitle('A box plot of GPD capita per country')+ 
+  
+       theme(plot.title=element_text(hjust=0.5)) 
+```
+
+
+
+
+## Example 3 (see Assignment 5 for similar examples)
+
+Using the data from __Exercise 2__ answer the following questions:
+
+1. Find the mean GDP per capita for the 17 eurzone countries
+2. Find the standard deviation of this data set
+3. Find the number of data points in this data set
+5. Plot the inflation data as a normal distribution.
+
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+1.
+
+```{r}
+mean(Distances)
+```
+
+```{r}
+xbar=mean(Distances)
+```
+
+
+2.
+
+```{r}
+sd(Distances)
+```
+
+3.
+
+```{r}
+n=length(Data2)
+n
+```
+
+4.
+
+```{r}
+s=sd(Distances)
+s
+```
+
+
+```{r}
+Interval1=seq(xbar-5*s,xbar+5*s,by=0.0001)
+```
+
+
+
+## Exercise 4 (see Assignment 6 for similar examples)
+We were given the following data relating Weekly Natural Gas Consumption in a U.S. city along with the Hourly Average Temperature in that city for the same week.
+
+| __Week__ | __Hourly Avg. Temp. ($^{\circ}$F)__   | __Weekly Natural Gas Consumption (MMcf)__ |
+|----------|---------------------------------------|-------------------------------------------|
+|     1    |              32.0                     |                   10.4                    |
+|     2    |              31.0                     |                   10.7                    |
+|     3    |              34                       |                   12.1                    |
+|     4    |              38                       |                   11.3                    |
+|     5    |              42                       |                   10.0                    |
+|     6    |              54                       |                   9.7                     |
+|     7    |              52                       |                   9.0                     |
+|     8    |              61                       |                   8.2                     |
+
+Using this data answer the following:
+
+1. Create a data file to represent this data.
+2. Import this data into __R__.
+3. Create two data vectors corresponding to temperature and consumption.
+4. Create a scatter plot to represent this data
+5. Use the __lm()__ function to create a linear model for these data vectors.
+6. Using this model estimate the parameters $a$ and $b$ for the simple linear model.
+7. Plot the line of best fit along with the scatter plot for the data set.
+
+--------------------------------------------------------------------------------------------------------------------
+
+1.
+
+```{r}
+GAS<-read.csv('GasConsumption.csv')
+```
+
+
+2.
+
+```{r}
+GAS<-read.csv('GasConsumption.csv')
+```
+
+```{r}
+GAS
+```
+
+
+3.
+
+```{r}
+TEMP<-GAS$Hourly.AVG.Temp
+NATURAL<-GAS$Weekly.Natural.Gas.Consumption
+```
+
+4.
+
+```{r}
+X1<-c(32,31,34,38,42,54,52,61)
+Y1<-c(10.4,10.7,12.1,11.3,10,9.7,9,8.2)
+plot(X1,Y1,xlab="x",ylab="y",col="red", main="Scatter Plot",pch=18)
+```
+
+
+5.
+
+```{r}
+lm(NATURAL~TEMP)
+```
+
+6.
+
+\\[y=14.14+0.09t\\]
+
+7.
+
+```{r}
+mean(X1)
+```
+
+```{r}
+mean(Y1)
+```
+
+
+
+```{r}
+X1<-c(32,31,34,38,42,54,52,61)
+Y1<-c(10.4,10.7,12.1,11.3,10,9.7,9,8.2)
+plot(X1,Y1,xlab="x",ylab="y",col="red",main="Linearly Correlated Data",pch=18)
+segments(1,13,x1=43,y1=10.175,col ="blue",lwd=2)
+```
+
+
+
+### Exercise 5 (see Assignment 8 and 9 for similar examples)
+
+Eight makes of car were compared using three different criteria:
+
+
+  1. Price (euro)    2. Engine (cc)    3. Efficiency (km/L)
+
+The data collected are given in the table below:
+
+| Make       |Price (euro)| Engine (cc)| Efficiency |
+|------------|-----------|-------------|------------|
+| Audi       | 42881     |     1968    |     24.7   |
+| BMW        | 44151     |     1990    |     23.9   |
+| Citroen    | 24523     |     1610    |     25.3   |
+| Hyundai    | 27770     |     1685    |     26.1   |
+| Jaguar     | 54456     |     1999    |     25.8   |
+| Mercedes   | 47976     |     1950    |     26.0   |
+| Mitsubishi | 29455     |     2300    |     20.8   |
+| Toyota     | 28867     |     1995    |     22.6   |
+
+Using the data in this table, answer the following:
+
+1. Create 8 __data vectors__ to represent each car make.
+
+2. Combine these data vectors using the __rbind()__ function, to create a single __data structure__.
+
+3. Rescale the dimensions of this data stricture, so each dimension is measured in the same order.
+
+4. Create a table of Euclidean and Manhattan distances for this re-scaled data structure.
+
+5. Perform a cluster analysis of the Euclidean and Manhattan distances, using both single linkage and complete linkage. 
+
+6. Create two heat map to represent these distances (Euclidean and Manhattan) using the function __fviz_dist()__.
+
+7. Create 4 dendrograms to represent the clustering using the function __fviz_dend()__. Each dendrogram should have 4 clusters.
+
+
+-----------------------------------------------------------------------------------------------------
+
+1.
+
+```{r}
+audi<-c(42881,1968,24.7)
+bmw<-c(44151,1990,23.9)
+citreon<-c(24523,1610,25.3)
+hyundai<-c(27770,1685,26.1)
+jaguar<-c(54456,1999,25.8)
+mercedes<-c(47976,1950,26.0)
+mitsubishi<-c(29455,2300,20.8)
+toyota<-c(28867,1995,22.6)
+```
+
+2.
+
+```{r}
+DataCars<-rbind(audi,bmw,citreon,hyundai,jaguar,mercedes,mitsubishi,toyota)
+DataCars
+```
+
+3.
+
+```{r}
+Data_S_Cars<-scale(DataCars,center=F,scale=c(100,100,10))
+Data_S_Cars
+```
+
+4.
+
+```{r}
+Dist_Cars_EL<- dist(Data_S_Cars,method="euclidean")
+Dist_Cars_EL
+```
+
+```{r}
+Dist_Cars_ML<- dist(Data_S_Cars,method="manhattan")
+Dist_Cars_ML
+```
+
+5.
+
+```{r}
+Cluster_Cars_EL=hclust(Dist_Cars_EL,method='complete')
+Cluster_Cars_EL
+```
+
+```{r}
+Cluster_Cars_EL1=hclust(Dist_Cars_ML,method='complete')
+Cluster_Cars_EL1
+```
+
+
+
+```{r}
+Cluster_Cars_EL2=hclust(Dist_Cars_EL,method='single')
+Cluster_Cars_EL2
+```
+
+```{r}
+Cluster_Cars_EL3=hclust(Dist_Cars_ML,method='single')
+Cluster_Cars_EL3
+```
+
+
+6.
+
+```{r}
+library("factoextra")
+```
+
+```{r}
+fviz_dist(Dist_Cars_EL,gradient=list(low='ivory',mid='cornflowerblue',hight='midnightblue'))
+```
+
+```{r}
+fviz_dist(Dist_Cars_ML,gradient=list(low='ivory',mid='cornflowerblue',hight='red'))
+```
+
+
+7.
+
+```{r}
+fviz_dend(Cluster_Cars_EL,k=2,color_labels_by_k=T, rect=T, k_colors=c("red", "dodgerblue"))
+```
+
+```{r}
+fviz_dend(Cluster_Cars_EL1,k=4,color_labels_by_k=T, rect=T, k_colors=c("red", "dodgerblue",'seagreen4','goldenrod'))
+```
+
+```{r}
+fviz_dend(Cluster_Cars_EL2,k=6,color_labels_by_k=T, rect=T, k_colors=c("red", "dodgerblue",'seagreen4','goldenrod','azure4','coral'))
+```
+
+```{r}
+fviz_dend(Cluster_Cars_EL3,k=8,color_labels_by_k=T, rect=T, k_colors=c("red", "dodgerblue",'seagreen4','goldenrod','azure4','coral', 'purple', 'firebrick'))
+```

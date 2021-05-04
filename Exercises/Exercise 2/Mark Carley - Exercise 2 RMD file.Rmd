@@ -1,0 +1,485 @@
+---
+title: "Data Visualisation 2019 - Assignment 2"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+List of __R__ colours at:
+ http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+ 
+## Required Libraries
+The library we need for this work book is __ggplot2__ which is required for plotting clustered and stacked bar-plots. This library must be first installed as follows:
+
+1. Go to the __Tools__ tab and select _Install Packages_
+2. In the _Packages_ box type __ggplot2__ and press install
+3. Once installed, call the __ggplot2__ library as follows
+ 
+```{r}
+library(ggplot2)
+```
+
+# Clustered Bar Charts
+In the case of clustered bar-charts it is often helpful to create a separate data file for our table. In the example from lectures we drew a clustered bar chart to represent the results of a customer survey carried out by a mobile phone company regarding five areas of customer experience:
+
+  | __Experience__ | __Satisfied__ | __Dissatisfied__ |
+  |----------------|---------------|------------------|
+  |     Support    |    551        |      449         |
+  |     Pricing    |    684        |      316         |
+  |     Contracts  |    329        |      671         |
+  |     Coverage   |    848        |      152         |
+  |     Rewards    |    215        |      785         |
+  
+We create this table in a standard database system and save the file with a __.csv__ (comma separated values) extension. The file for this particular example, __CustomerSurvey.csv__, is available on Moodle in the section _Data Files_. Download this file into the same directory as this __R__ workbook.  
+  
+
+We now import the data in the __.csv__ file, which we call __Survey__, as follows: Run the chunk below as usual, and when the pop-up menu appears select the file __CustomerSurvey.csv__ and press __Open__
+```{r}
+Survey <- read.csv(file.choose())
+```
+We display this data frame by running the following chunk
+```{r}
+Survey
+```
+We now plot this data frame using the functions __ggplot()__, __geom_bar()__ and __scale_fill_manual()__:
+
+
+
+* We use __ggplot()__ to plot the data structure __CustData__. The argument __aes()__ (for aesthetics) informs __ggplot__ to use the __Experience__ column as the x-axis data of the plot and to use the __Frequency__ column as the y-axis data of the plot.
+
+
+* We use __geom_bar()__ to indicate we want the geometry of the plot to be bars. The argument __aes(fill=Satisfacion)__ indicates that the bars should be filled according to the __Satisfaction__ values from the data frame. The argument __position = "dodge"__ ensures the clustered bars do not overlap. The argument __stat="identity"__ ensures the y-data is taken from the data set.
+
+* The __scale_fill_manual()__ function allows us to choose the colours of the bars
+
+```{r}
+ggplot(data=Survey, aes(x=Experience, y=Frequency)) +   
+  geom_bar(aes(fill = Satisfaction), position = "dodge", stat = "identity")+
+  scale_fill_manual(values=c("blue", "red"))
+```
+
+## Ordering the data
+
+* We saw during lectures that rearranging the order of the clusters may improve the overall appearance of the bar chart, and in particular it may make the content of data more apparent.
+
+* We will organise our clusters so they are arranged from highest to lowest levels of customer satisfaction. This means the clusters should be arranged as
+
+    1. Coverage
+    2. Pricing
+    3. Support
+    4. Contracts
+    5. Rewards
+
+This is done in __R__ in the cell below:
+```{r}
+Survey$Experience <- factor(Survey$Experience, levels = c('Coverage', 'Pricing', 'Support', 'Contracts', 'Rewards'))
+Survey
+```
+
+```{r}
+ggplot(data=Survey, aes(x=Experience,y=Frequency)) +   
+  geom_bar(aes(fill = Satisfaction), position = "dodge", stat = "identity")+
+  scale_fill_manual(values=c("blue", "red"))
+```
+* It is clear, at least in this particular example, that re-ordering the clusters has improved the presentation of the data, and in particular it should be more apparent that levels of customer satisfaction are slightly higher than levels of customer dissatisfaction.
+
+
+
+### Colouring
+
+* So far, the bars representing __satisfaction/dissatisfaction__ are coloured in a similar way. This can make it difficult to discern which bar represents which sub-category.
+
+* A list of colours in __R__ can be found at  http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+
+* To highlight the difference between __satisfaction/dissatisfaction__ we could choose different colours that bear no resemblance to one another.
+
+* In addition, colours  that are occur in nature are found to be more appealing to the viewer. With this in mind, we make the same plot with alternative colors
+
+```{r}
+ggplot(data=Survey, aes(x=Experience,y=Frequency)) +   
+  geom_bar(aes(fill = Satisfaction), position = "dodge", stat = "identity")+
+  scale_fill_manual(values=c("cadetblue4", "goldenrod"))
+```
+
+## Exercise 1 
+
+A computer retailer collected data on laptop sales and organise it according to make and chip type, with the following data obtained
+
+| __Make__ | __Intel i3__ | __Intel i5__ | __Intel i7__ |
+|----------|--------------|--------------|--------------|
+|  Apple   |      5       |      25      |       31     |
+|  Dell    |      15      |      21      |       16     |
+|  HP      |      21      |      28      |       26     |
+|  Lenovo  |      18      |      32      |       31     |
+
+Given this data answer the following
+
+1. Identify the data type given.
+
+2. Create a __.csv__ file to tabulate this data.
+
+3. Create __two__ clustered bar plot from this data file, using different colours in each plot.
+
+4. Reorder these plots in order of __decreasing Intel i3__ sales.
+
+4. Which of these plots conveys the data in the clearest way?
+
+## Exercise 1 solutions
+
+1.
+The type of data shown would be an ordinal data type as it lists the data categorical where all the variables
+appear ordered.
+
+
+2. ------------------------------------------------------------------------------------------
+```{r}
+SurveyPC <- read.csv(file.choose())
+```
+```{r}
+SurveyPC
+```
+
+3. ------------------------------------------------------------------------------------------
+```{r}
+ggplot(data=SurveyPC, aes(x=Make,y=Frequency)) +   
+  geom_bar(aes(fill = Proccessor), position = "dodge", stat = "identity")+
+  scale_fill_manual(values=c("blue", "red", "green"))
+```
+
+```{r}
+ggplot(data=SurveyPC, aes(x=Make,y=Frequency)) +   
+  geom_bar(aes(fill = Proccessor), position = "dodge", stat = "identity")+
+  scale_fill_manual(values=c("gold", "dimgrey", "darkgreen"))
+```
+
+4. ------------------------------------------------------------------------------------------
+
+```{r}
+SurveyPC$Make <- factor(SurveyPC$Make, levels = c('HP', 'Lenovo', 'Dell', 'Apple'))
+Survey
+```
+
+```{r}
+ggplot(data=SurveyPC, aes(x=Make,y=Frequency)) +   
+  geom_bar(aes(fill = Proccessor), position = "dodge", stat = "identity")+
+  scale_fill_manual(values=c("blue", "red", "orange"))
+```
+
+5. ------------------------------------------------------------------------------------------
+
+Plot number 2 displays data more accurately as were given a better understanding of sales
+values of the i3 section in comparision to the other intel processors which makes it easier
+to read.
+
+
+## Exercise 2
+
+A company survey asked a sample of 500 employees a series of satisfied/dissatisfied questions in relation to their work in the following areas
+
+1. Work/Life Balance  2. Remuneration  3. Career Opportunities   4. Job Satisfaction   5. Vacation Time  6. Up-skilling Opportunities
+
+with the following data obtained
+
+| __Work Feature__        | Satisfied | Dissatisfied |
+|-------------------------|-----------|--------------|
+|Work/Life Balance        |    398    |     102      |
+|  Remuneration           |    302    |     198      |
+|Career Opportunities     |    274    |     226      |
+| Job Satisfaction        |    405    |      95      |
+| Vacation Time           |    277    |     233      |
+| Up-skilling Opportunities|    321    |     179      |
+
+Using this data answer the following
+
+1. Create a __.csv__ file for this data an import it into this work book
+
+2. Create a clustered bar-plot for this data
+
+3. Identify the datatype given 
+
+4. Is there any trend obvious from the chart?
+
+
+## Exercise 2 solutions
+
+1. ------------------------------------------------------------------------------------------
+
+```{r}
+SurveyWork <- read.csv(file.choose())
+```
+```{r}
+SurveyWork
+```
+
+2. ------------------------------------------------------------------------------------------
+
+```{r}
+ggplot(data=SurveyWork, aes(x=Experience,y=Frequency)) +   
+  geom_bar(aes(fill = SatisfiedDissatisfied), position = "dodge", stat = "identity")+
+  scale_fill_manual(values=c("blue", "red", "blue", "red", "blue", "red"))+theme(axis.text.x=element_text(angle=-45))
+```
+
+3. ------------------------------------------------------------------------------------------
+
+The following data type is a clustered data type of information ordered into two categories of
+satisfied and dissatisfied.
+
+4. ------------------------------------------------------------------------------------------
+
+There seems to be some extreme variations between the experience titles of work/life balance and
+job satisfaction between the two groups.
+
+
+# Stacked Bar Charts
+
+A stacked bar-chart is another type of bar-chart where we compare data within a given class, and in particular it illustrates how the overall frequency in a given class is decomposed into further sub-categories.
+
+## Example 2
+
+A Toyota dealership is taking an inventory of all models present on the lot, and organises its data according to make and age. The ages of the cars are categorised according to pre-2008 and post-2008, with the data given as follows
+
+
+| __Model__ | Pre-2008 | Post-2008  |
+|-----------|----------|------------|
+|   Auris   |    8     |     15     |
+|   Avensis |    11    |     21     |
+|   Camry   |    4     |      2     |
+|   Corolla |    23    |     18     |
+|   Prius   |    1     |      4     |
+|   Yaris   |    4     |     12     |
+
+
+1. Import the data from  __CarInventory.csv__ available in _Workbook Files_ on Moodle and display the data.
+```{r}
+Cars <- read.csv(file.choose())
+```
+We display the data frame __Cars__ to ensure all is correct
+```{r}
+Cars
+```
+
+2. Plot the data with high-contrast colours using __ggplot__.
+
+```{r}
+ggplot(Cars, aes(x=Model,y=Inventory, fill=Year))+
+  geom_bar(stat="identity")+
+  scale_fill_manual(values=c("dodgerblue","goldenrod1"))
+``` 
+3. Reorder the plots in order of __decreaing Pre-2008__ inventory.
+```{r}
+Cars$Model <- factor(Cars$Model, levels = c('Corolla', 'Avensis', 'Auris', 'Camry', 'Yaris', 'Prius'))
+Cars
+```
+4. Plot the reordered data using the same colouring.
+```{r}
+ggplot(Cars, aes(x=Model,y=Inventory, fill=Year))+
+  geom_bar(stat="identity")+
+  scale_fill_manual(values=c("dodgerblue","goldenrod1"))
+``` 
+5. Re-plot the ordered bar-chart using different colours. Which of the bar-charts is easier to interpret?
+```{r}
+ggplot(Cars, aes(x=Model,y=Inventory, fill=Year))+
+  geom_bar(stat="identity")+
+  scale_fill_manual(values=c("slategrey","skyblue"))
+``` 
+
+
+## Exercise 3 
+A computer retailer sumarises its quarterly sales by computer make and sales point, with the following data collected
+
+| __Make__ | __Online Sales__ | __Store Sales__ | __Corporate Sales__ |
+|----------|------------------|-----------------|---------------------|
+| Apple    |         210      |        155      |          53         |
+| Asus     |         335      |        278      |          55         |
+| Fujitsu  |         188      |        205      |          75         |
+| HP       |         336      |        451      |         125         |
+| Lenovo   |         225      |        321      |         144         |
+
+Using this data answer the following:
+
+1. Identify the data type given
+2. Construct a __.csv__ file to store this data
+3. Generate a stacked bar chart to represent this data
+4. Re-plot the data in order of __decreasing Online Sales__
+5. Use a different set of colours to re-plot the ordered bar-chart
+
+
+## Exercise 3 Solutions
+
+1. ------------------------------------------------------------------------------------------
+
+The table is a data surveyed group of sales figures for each brand that is unordered.
+
+2. ------------------------------------------------------------------------------------------
+
+```{r}
+SurveySales <- read.csv(file.choose())
+```
+```{r}
+SurveySales
+```
+
+3. ------------------------------------------------------------------------------------------
+
+```{r}
+ggplot(SurveySales, aes(x=Make,y=Frequency, fill=Sales))+
+  geom_bar(stat="identity")+
+  scale_fill_manual(values=c("dodgerblue","goldenrod1","red"))
+```
+
+4. ------------------------------------------------------------------------------------------
+
+```{r}
+SurveySales$Make <- factor(SurveySales$Make, levels = c('HP', 'Asus', 'Lenovo', 'Apple','Fujitsu'))
+SurveySales
+```
+
+
+```{r}
+ggplot(SurveySales, aes(x=Make,y=Frequency, fill=Sales))+
+  geom_bar(stat="identity")+
+  scale_fill_manual(values=c("dodgerblue","goldenrod1","red"))
+```
+
+5. ------------------------------------------------------------------------------------------
+
+```{r}
+ggplot(SurveySales, aes(x=Make,y=Frequency, fill=Sales))+
+  geom_bar(stat="identity")+
+  scale_fill_manual(values=c("green3","indianred2","lightcyan3"))
+```
+
+
+
+## Exercise 4
+
+Using the data given in __Exercise 1__, generate ordered and unordered _**stacked bar charts**_ to represent this data set.
+
+
+## Exercise 4 solutions
+
+1.------------------------------------------------------------------------------------------
+
+```{r}
+SurveyPC
+```
+
+```{r}
+ggplot(SurveyPC, aes(x=Make,y=Frequency, fill=Proccessor))+
+  geom_bar(stat="identity")+
+  scale_fill_manual(values=c("lightgoldenrod3","lavenderblush2","khaki"))
+```
+
+
+
+
+## Exercise 5
+
+Using the data given in __Exercise 2__, generate ordered and unordered _**clustered bar chart**_ to represent this data.
+
+
+## Exercise 5 solutions
+
+1. ------------------------------------------------------------------------------------------
+
+```{r}
+SurveyWork
+```
+
+UNORDERED CLUSTERED BAR CHART
+
+```{r}
+ggplot(data=SurveyWork, aes(x=Experience,y=Frequency)) +   
+  geom_bar(aes(fill = SatisfiedDissatisfied), position = "dodge", stat = "identity")+
+  scale_fill_manual(values=c("blue", "red", "blue", "red", "blue", "red"))
+```
+ORDERED CLUSTER BAR CHART
+
+```{r}
+SurveyWork$Experience <- factor(SurveyWork$Frequency, levels = c('95', '102', '', 'Apple','Fujitsu'))
+SurveyWork
+```
+
+
+## Exercise 6
+
+A food producer collects data on its global revenue from one year of sales. It categorises the regions of sales activity as
+
+1. North America  2. Central & South America  3. Europe, Middle East and Africa (EMEA)   4. Asia  5. Australasia
+
+It categorises its food products according to
+
+1. Wheat and Dairy  2. Beverages  3. Confectionery  4. Weight Reduction
+
+with the following sales data in millions of euro 
+
+| __Region__             | __Wheat and Dairy__ | __Beverages__ | __Confectionary__ | __Weight Reduction__ |
+|------------------------|---------------------|---------------|-------------------|----------------------|
+| North America          |       51            |       152     |       95          |        125           |
+| South & Central America|       71            |        32     |       122         |         75           |
+| EMEA                   |       241           |       111     |       84          |        119           |
+| Asia                   |       188           |        94     |       88          |         92           |
+| Australasia            |       44            |        29     |       74          |         57           |
+
+
+Using this data set answer the following:
+
+1. Identify the data types given
+
+2. Generate a __.csv__ file to store this data
+
+3. Generate a __clustered barplot__ to represent this data
+
+4. Generate a __stacked barplot__ to represent this data
+
+5. Which of the bar charts represents this data better?
+
+6. Re-plot these charts with a different ordering and with different colouring, of your own choice?
+
+
+
+Exercise 6 Solutions
+
+1. ------------------------------------------------------------------------------------------
+
+The type of data above is ordinal data that has been categorised into different regions
+and types.
+
+2. ------------------------------------------------------------------------------------------
+
+```{r}
+SurveyFood <- read.csv(file.choose())
+```
+
+```{r}
+SurveyFood
+```
+
+3. ------------------------------------------------------------------------------------------
+
+```{r}
+ggplot(data=SurveyFood, aes(x=Region,y=Frequency)) +   
+  geom_bar(aes(fill = Type), position = "dodge", stat = "identity")+
+  scale_fill_manual(values=c("blue", "red", "orange", "grey", "purple", "yellow"))
+```
+
+
+4. ------------------------------------------------------------------------------------------
+
+```{r}
+ggplot(SurveySales, aes(x=Make,y=Frequency, fill=Sales))+
+  geom_bar(stat="identity")+
+  scale_fill_manual(values=c("dodgerblue","goldenrod1","red"))
+```
+
+
+
+
+
+

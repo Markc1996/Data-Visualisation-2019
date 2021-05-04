@@ -1,0 +1,422 @@
+---
+title: "Data Visualisation 2019 - Assignment 7 - Mark Carley - 20071864"
+output: html_notebook
+---
+
+
+
+## List of R colors:
+http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+
+```{r}
+library(ggplot2)
+```
+
+# Misrepresentation in Statistics
+## Example 1:
+
+* During lectures we saw several examples where choosing the incorrect baseline could lead to inaccurate visual representations of data. One example we encountered was the case of circulation data of the daily newspapers __The Times__ and the  __Daily Telegraph__.
+
+* The daily sales figures for each newspaper are given in the following table
+
+  | Daily Telegraph | The Times |
+  |-----------------|-----------|
+  |      446954     |  485729   |
+* In the code block below we create a __data frame__ to represent these data. The reason for creating this data frame is so it may be used with the plotting functions available in the library __ggplot2__, which has many more features than the regular __barplot()__ function
+```{r}
+Circulation <- c(485729,446954)
+Papers<-c("The Times", "Daily Telegraph")
+Sales<-data.frame(Papers,Circulation)
+Sales
+```
+* We recall the basic syntax of the __ggplot()__ function  here:
+    1. We plot the data frame __Sales__
+    2. The argument __aes()__ indicates which item is to appear on the horizontal and vertical axes
+    3. The __geom_bar()__ function controls most features of the bars appearing in the plot:
+          * __stat="identity"__ indicates that $y$-values correspond to bar height
+          * __fill__ allows us to control the color of individual bars in the bar chart
+    4. The function __coord_catesian()__ is where the representation of the data is really controlled. By choosing our $y$-limits we can make the         difference in sales look as we please 
+* In the plot below, we choose a baseline $y=420000$, which will make the circulation of the __Daily Telegraph__ look unrealistically small compared to the circulation of __The Times__. This baseline was used in a similar graph by __The Times__, in a story newspaper reporting these differences in circulation.  
+```{r}
+ggplot(Sales, aes(Papers,Circulation))+geom_bar(stat="identity",fill=c("azure4","cornflowerblue"))+coord_cartesian(ylim=c(420000,500000))
+```
+
+* Alternatively, if we make the $y$-range of the plot too large, then the difference in circulations will _appear_ negligible. In the plot below, we use an appropriate baseline, however, the upper limit of the bar plot is set to $y=4,000,000$, which will mean both bars appear to be essentially the same height.
+```{r}
+ggplot(Sales, aes(Papers,Circulation))+geom_bar(stat="identity",fill=c("azure4","cornflowerblue"))+coord_cartesian(ylim=c(0,4000000))
+```
+* In the final version of this bar plot, we choose the baseline to be $y=0$, while the upper limit of the bar plot is set to $y=500,000$
+
+```{r}
+ggplot(Sales, aes(Papers,Circulation))+geom_bar(stat="identity",fill=c("azure4","cornflowerblue"))+coord_cartesian(ylim=c(0,500000))
+```
+
+
+* In this plot, we see that the difference in circulations is small, though not completely negligible, when compared to the overall circulation of each newspaper.
+
+
+## Exercise 1:
+
+On 1 January 2013, tax cuts from the era of President George W Bush were set to expire. With the tax cuts in place, the tax rate was 35%, while the tax rate when the tax cuts expire climbed to 39.6%. In a Fox News story reporting this issue, a bar plot was used to represent these tax rates to highlight the difference in tax rates. The baseline use for the plot was a tax rate of 34%.
+
+Given this, answer the following:
+
+1. Create a data frame to represent the data relating to the tax rate pre and post the expiry date.
+
+2. Use the base line 34% to plot a bar chart representing the change in tax rates.
+
+3. Does the tax rate increase look significant or not, when compared to the actual tax rate?
+
+4. Choose the $y$-limits of the graph to make the difference in tax rates look insignificant.
+
+5. Use appropriate $y$-limits to represent the change in tax rate more accurately.
+
+----------------------------------------------------------------------------------------------------------
+
+1.
+```{r}
+TaxRate <- c(35,39.6)
+Title<-c("PRE-TAX RATE", "POST-TAX RATE")
+Tax<-data.frame(Title,TaxRate)
+Tax
+```
+
+2.
+```{r}
+ggplot(Tax, aes(Title,TaxRate))+geom_bar(stat="identity",fill=c("azure4","cornflowerblue"))+coord_cartesian(ylim=c(34,40))
+```
+
+3.
+
+The post tax rate is quick significant in comparison to the actual tax rate.
+
+4.
+
+```{r}
+ggplot(Tax, aes(Title,TaxRate))+geom_bar(stat="identity",fill=c("azure4","cornflowerblue"))+coord_cartesian(ylim=c(34,150))
+```
+
+5.
+
+```{r}
+ggplot(Tax, aes(Title,TaxRate))+geom_bar(stat="identity",fill=c("azure4","cornflowerblue"))+coord_cartesian(ylim=c(34,39))
+```
+
+
+
+
+##  Example 2: Cumulative Revenue vs. Actual Revenue
+
+As an example of how data may be misrepresented by selecting an __inappropriate chart__ we consider the following revenue data at a company
+
+| Quarter | Revenue(€1,000,000) | Cumulative Revenue(€1,000,000)     |
+|---------|---------------------|------------------------------------|
+|    1    |       1.22          |          1.22                      |
+|    2    |       1.81          |          3.03                      |
+|    3    |       2.14          |          5.17                      |    
+|    4    |       1.65          |          6.82                      |
+|    5    |       1.50          |          8.32                      |
+|    6    |       1.36          |          9.68                      |
+|    7    |       1.17          |          10.85                     |
+|    8    |       1.08          |          11.93                     |
+|    9    |       1.07          |          13.00                     |
+|    10   |       0.98          |          13.98                     |
+
+We first create a data frame to represent this data
+```{r}
+Q<-c("Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "Q10")
+R<-c(1.22,1.81,2.14,1.65,1.50,1.36,1.17,1.08,1.07, 0.98)
+CR<-c(1.22,3.03,5.17,6.82,8.32,9.68,10.85,11.93,13.00,13.98)
+Revenue<-data.frame(Q,R,CR)
+Revenue$Q <- factor(Revenue$Q, levels = Revenue$Q[order(Revenue$CR)])# This will ensure ggplot will plot the data in the correct order
+Revenue
+```
+
+
+
+
+
+
+### The Cumulative Revenue
+* We now plot the cumulative revenue of the company
+```{r}
+ggplot(Revenue, aes(Q, CR, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Cumulative Quarterly Revenue(€ Millions)")
+```
+
+* The cumulative revenue plot seems to suggest the company is doing well, with sales constantly increasing. 
+
+* However, this is a result of plotting the incorrect data. When we plot the sales data directly, we find a very different picture
+
+```{r}
+ggplot(Revenue, aes(Q, R, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue(€ Millions)")
+```
+* When plotting the quarterly revenues directly, we see there is actually a steep decline in the company revenue between Q3 and Q4, and a steady decline in revenue after that.
+
+
+## Exercise 2
+
+The data file __RegionalGDPGrowth(2000-2016).csv__ contains GDP growth rate data for various economic regions around the world: The file is available at
+
+  __Moodle__ $\rightarrow$ __Data Visualisation__ $\rightarrow$ __Workbook Files__ $\rightarrow$ __RegionalGDPGrowth(2000-2015).csv__
+  
+Import this data file into the workbook folder using __Data<-read.csv(file.chooe())__ as usual. The create a data frame from this file using __DF<-data.frame(Data)__
+
+Using this data frame answer the following:
+
+  1. Obtain the mean GDP growth rate for each region using __mean(DF$region)__
+  2. Create a bar plot comparing the average economic growth rate of each region, and choose a baseline such that the economic growth rate of      __China__ is exaggerated compared to all the others.
+  3. Choose $y$-limits so that the average economic growth rate of each region all appear to be approximately the same.
+  4. Choose $y$-limits so that the average growth rates are displayed accurately.
+  
+---------------------------------------------------------------------------------------------------------  
+1.
+
+```{r}
+GDP<-read.csv('RegionalGDPGrowth(2000-2015).csv')
+GDP
+```
+
+```{r}
+GDP1<-GDP[,2]
+GDP2<-GDP[,3]
+GDP3<-GDP[,4]
+GDP4<-GDP[,5]
+GDP5<-GDP[,6]
+GDP6<-GDP[,7]
+GDP7<-GDP[,8]
+mean(GDP1)
+mean(GDP2)
+mean(GDP3)
+mean(GDP4)
+mean(GDP5)
+mean(GDP6)
+mean(GDP7)
+
+```
+
+```{r}
+MeanGDP2 <- c(mean(GDP1),mean(GDP2),mean(GDP3),mean(GDP4),mean(GDP5),mean(GDP6),mean(GDP7))
+Title<-c("China", "UK","Ireland","OECD","US","World","EU")
+MeanGDP<-data.frame(Title,MeanGDP2)
+MeanGDP
+```
+
+
+
+
+
+2.
+
+```{r}
+GDPRegional
+
+```
+
+
+```{r}
+ggplot(MeanGDP, aes(Title,MeanGDP2))+geom_bar(stat="identity",fill=c("gold","purple","orange","cornflowerblue","black","yellow","blue"))
+```
+
+3.
+
+```{r}
+ggplot(MeanGDP, aes(Title,MeanGDP2))+geom_bar(stat="identity",fill=c("gold","purple","orange","cornflowerblue","black","yellow","blue"))+coord_cartesian(ylim=c(1,200))
+```
+
+4.
+
+```{r}
+ggplot(MeanGDP, aes(Title,MeanGDP2))+geom_bar(stat="identity",fill=c("gold","purple","orange","cornflowerblue","black","yellow","blue"))+coord_cartesian(ylim=c(1,10))
+```
+
+
+
+
+
+
+
+
+## Omitting Data
+* Another common way data may be misrepresented in statistical charts is by omitting data.
+
+* In Example 2 we saw that the revenue of a company could be falsely represented by plotting the cumulative revenue as opposed to the quarterly revenue.
+
+* Another way we may misrepresent this data is by not displaying all data available to us:
+
+```{r}
+ggplot(Revenue, aes(Q, R, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```   
+  * The function __scale_x_discrete()__ allows us to choose which quarters we actually show in the line graph. By only showing data for the first 3 quarters, we manage to give a false impression of the company revenue growth.
+  
+## Exercise 3:
+
+Using the data frame constructed in __Exercise 2__ answer the following:
+
+1. Plot the GDP growth rate for each region between the years 2000-2007.
+2. From these plots, what conclusion might be made about economic growth in each region?
+3. Plot the GDP growth rate for each region between the years 2007-2012.
+4. What trend might be deduced about the economic growth rate in each region, from these new plots?
+5. Plot the GDP growth rate for each region between 2000 and 2016.
+6. What would be a more accurate assessment of the economic growth rate of each region, base on these plot?
+
+## Exercise 3 solutions
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+1.
+
+
+```{r}
+GDP11<-GDP[1:8,2]
+GDP12<-GDP[1:8,3]
+GDP13<-GDP[1:8,4]
+GDP14<-GDP[1:8,5]
+GDP15<-GDP[1:8,6]
+GDP16<-GDP[1:8,7]
+GDP17<-GDP[1:8,8]
+mean(GDP11)
+mean(GDP12)
+mean(GDP13)
+mean(GDP14)
+mean(GDP15)
+mean(GDP16)
+mean(GDP17)
+
+```
+
+```{r}
+MeanGDP3 <- c(mean(GDP11),mean(GDP12),mean(GDP13),mean(GDP14),mean(GDP15),mean(GDP16),mean(GDP17))
+Title<-c("China", "UK","Ireland","OECD","US","World","EU")
+MeanGDP<-data.frame(Title,MeanGDP3)
+MeanGDP
+```
+
+
+```{r}
+ggplot(GDP[1:8,], aes(Year[1:8], China[1:8], group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```   
+
+```{r}
+ggplot(GDP[1:8,], aes(Year[1:8], UK[1:8], group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[1:8,], aes(Year[1:8], Ireland[1:8], group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[1:8,], aes(Year[1:8], OECD[1:8], group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[1:8,], aes(Year[1:8], US[1:8], group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[1:8,], aes(Year[1:8], World[1:8], group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[1:8,], aes(Year[1:8], EU[1:8], group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+
+
+2.
+
+The economic growth range staggers more freqeuntly on most countries except china.
+
+3.
+
+```{r}
+GDP21<-GDP[8:13,2]
+GDP22<-GDP[8:13,3]
+GDP23<-GDP[8:13,4]
+GDP24<-GDP[8:13,5]
+GDP25<-GDP[8:13,6]
+GDP26<-GDP[8:13,7]
+GDP27<-GDP[8:13,8]
+mean(GDP21)
+mean(GDP22)
+mean(GDP23)
+mean(GDP24)
+mean(GDP25)
+mean(GDP26)
+mean(GDP27)
+
+```
+
+
+```{r}
+ggplot(GDP[8:13,], aes(Year, China, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[8:13,], aes(Year, UK, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[8:13,], aes(Year, Ireland, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[8:13,], aes(Year, OECD, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[8:13,], aes(Year, US, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[8:13,], aes(Year, World, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[8:13,], aes(Year, EU, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+
+
+4.
+
+All EU based countries have best to no economic growth rate between these years, yet little rises in the us and oecd. still massive rise in the chinese rate.
+
+5.
+
+```{r}
+ggplot(GDP[1:17,], aes(Year, China, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[1:17,], aes(Year, UK, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[1:17,], aes(Year, Ireland, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[1:17,], aes(Year, OECD, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+```{r}
+ggplot(GDP[1:17,], aes(Year, US, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+
+```{r}
+ggplot(GDP[1:17,], aes(Year, World, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+
+```{r}
+ggplot(GDP[1:17,], aes(Year, EU, group=1))+geom_line(color="gray", size=1.5)+geom_point(size=4,color="red")+labs(x="Quarter", y="Quarterly Revenue")+scale_x_discrete(limits=c("Q1","Q2","Q3" ))
+```
+
+
+
+
+6.
+
+Most countries tend to fall in GDP between 2010 to 2012 based off the line plots.
+

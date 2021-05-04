@@ -1,0 +1,640 @@
+---
+title: ' Data Visualisation 2019 - Assignment 1 - Mark Carley - 20071864'
+output:
+  html_notebook: default
+  pdf_document: default
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Execute a code chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+Add a new chunk by clicking the *Insert Chunk* button on the tool-bar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+## Useful References for __R__
+A list of colours available in **R** can be found at
+
+* http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+
+# Section 1 - Histograms
+
+ * A __Histogram__ is a type of bar-chart where the categories are number intervals as opposed to nominal categories.
+
+
+ * In this section we are going to use __R__ to plot a histogram for a given data set. 
+ 
+ * During lectures we will find that there is a certain amount of ambiguity in how we graph a histogram, in that the number of bars    and consequently the bar-widths are not fixed, but can be chosen. 
+ 
+However we do have some guidelines to help us:
+
+### Guidelines for Histograms
+
+1. The number of bars should be between __5__ and __20__.
+
+2. If the lowest and highest data points are __not convenient numbers__ then we can do the following:
+    
+    * __Round down__ the smallest data point to the next lowest convenient number.
+    
+    * __Round up__ the largest data point toe the next highest convenient number.
+    
+3. Find the __length__ (or __range__) of this new interval by subtracting the lowest from the highest data values.
+
+4. If possible, choose the number of bars such that this number divides evenly into the __range__, to give us our __interval__.
+
+
+5. Starting with the smallest value, start marking off the horizontal axis in units of the interval, until the highest data point is reached.
+
+6. Categorise the data into theses intervals and construct a  frequency (or relative frequency) table for this categorization
+  
+ * __NOTE:__ If a data value falls within two consecutive intervals, place it in the __upper interval__.  
+  
+7. The height of each bar on the histogram corresponds to the frequency or relative frequency of the interval.
+
+### Example 1
+
+The trees in an orchard were measured and found to have the following heights
+
+* 3.4m, 3.5m, 3.7m, 4.2m, 4.4m, 4.7m, 4.9m, 5.1m, 5.2m, 5.3m, 5.9m, 6.0m, 6.4m, 7.3m, 7.9m, 8.1m, 8.7m.
+
+Construct a histogram to graph this data set.
+
+### Solution 
+1. We may __round off__ the highest and lowest values to more convenient numbers such as
+  * __3.4 $\to$ 3__.
+  * __8.7 $\to$ 9__.
+2. The new data __range__ is given by __range__=9-3=6
+3. We choose a number between __5__ and __20__ which __divides__ evenly into this __range__, and so an obvious choice is __6 bars__ for this histogram.
+4. We create a __vector__ valued object to store the measured heights: 
+
+```{r}
+Heights <- c(3.4, 3.5, 3.7, 4.2, 4.4, 4.7, 4.9, 5.1, 5.2, 5.3, 5.9, 6.0, 6.4, 7.3, 7.9, 8.1, 8.7)
+```
+
+5. We use the __hist()__ function to plot a histogram of the vector __Heights__
+
+```{r}
+hist(Heights, breaks=6, axes=T,col="skyblue4", main="Histogram of Tree Heights in an Orchard", ylab="Frequency", xlab="Tree heights (m)", freq=T)
+```
+
+6. To print a PDF of this graph we use the __pdf()__ and __dev.off()__ commands
+```{r}
+pdf("Histogram1.pdf")
+hist(Heights,breaks=6, axes=T,col="skyblue4", main="Histogram of Tree Heights in an Orchard", ylab="Frequency", xlab="Tree heights (m)", freq=T)
+dev.off()
+```
+7. Unlike the __barplot()__ command, the histogram plot automates a large amount of the work for us. Nevertheless, it is still possible to override most of these automatic choices by selecting various arguments for the __hist()__ function. 
+
+* Most of these arguments are explained in the __R__ documentation available in the __Help__ panel of the __R Studio__ environment. Just type hist into the the search bar and press enter.  
+
+## Skewed Data and Central Data
+
+A collection of data is __skewed left__ if its histogram displays a tail to the left. This means the at possess __outliers__ at the lower end  of the data set.
+
+### Example: Skewed-left data
+
+```{r}
+Left<-c(1,8,8,8,9,9,9,10,10,11,11,11)
+hist(Left,col="cornflowerblue",main="Left-Skewed Data", xlab="Left Data Values")
+```
+* Notice, most of the data is concentrated to the right between 6 and 12. However, a small portion of the data forms a __left-tail__ between 0 and 2. This tail is what skews the data to the left.
+
+
+
+Conversely, the data is __skewed right__ if the histogram displays a tail to the right, and likewise this indicates the presence of outlines at the upper end of the data set.
+
+### Example: Right-skewed data
+```{r}
+Right<-c(1,1,2,3,3,3,4,4,5,5,5,12)
+hist(Right,breaks=5, col="cornflowerblue",main="Right-Skewed Data", xlab="Right Data Values")
+```
+* Most of the data is concentrated to the left between 0 and 6. However, a small portion of the data forms a __right-tail__ between 10 and 12. This tail is what skews the data to the right.
+
+### Test for skewness
+
+* If the data is __skewed right__ then
+\\[
+   mean > median
+\\]
+
+
+* If the data is __skewed left__ then
+\\[
+  mean < median
+\\]
+
+* If the data is __central__ then
+\\[
+  mean = median
+\\]
+  and the histogram is symmetric.
+  
+### Example: Test for skewness
+We will test the data sets __Left__ and __Right__ for skewness.
+
+#### Left Data:
+```{r}
+mean(Left)
+```
+```{r}
+median(Left)
+```
+
+* We see that the mean of the __Left__ data is less than the median of the __Left__ data, confirming it is skewed-left.
+
+
+#### Right Data:
+```{r}
+mean(Right)
+```
+
+```{r}
+median(Right)
+```
+
+* We see that the mean of the __Right__ data is greater than the median of the __Right__ data, confirming it is skewed-right.
+
+
+#### Skewness of Heights:
+
+The histogram in __Example 1__ appears to display a tail to the right and so we expect the data to be __skewed right__. 
+
+To test this we can use the __mean()__ and the __median()__ functions and compare.
+
+```{r}
+mean(Heights)
+median(Heights)
+```
+Since the mean is bigger than the median, this means the data is __skewed right__ as we expect from the histogram above.
+
+## Example 2
+The marks scored by a class in a test are as follows (not in order):
+
+ * 50, 63, 29, 54, 56, 0, 53, 34, 45, 85, 65, 62, 60, 3, 71, 66, 63, 68, 69, 67, 79, 75, 72, 81, 87, 91, 52 
+
+Using this data, answer the following:
+
+A. Use the __sort()__ function to sort this data and the __length()__ function to count the data points
+
+B. Draw a histogram to represent this sorted data
+
+C. From the histogram decide if the data is __skewed left__, __skewed right__ or __symmetric__
+
+D. Find the mean of this data
+
+E. Find the median of this data set
+
+F. Comparing the mean and the median, decide if the data is __skewed left__, __skewed right__ or __symmetric__. Does this agree with the histogram?
+
+### Solution
+A.
+```{r}
+Scores <- c(50, 63, 29, 54, 56, 0, 53, 34, 45, 85, 65, 62, 60, 3, 71, 66, 63, 68, 69, 67, 79, 75, 72, 81, 87, 91, 52)
+sort(Scores)
+```
+```{r}
+length(Scores)
+```
+B.
+```{r}
+hist(Scores, breaks=8, xlim=c(0,100),ylim=c(0,0.02),freq=F, xlab="Exam Scores", ylab="Relative Frequency", col="darkslategray4", main="Histogram of Exam Scores")
+```
+
+C. 
+From the histogram, the data appears to be skewed-left.
+
+
+D.
+```{r}
+mean(Scores)
+```
+
+```{r}
+median(Scores)
+```
+Since the mean is less than the median the data is skewed left. This agrees with the shape of the histogram for the data set.
+
+
+### Exercise 1
+
+The journey times (in hours) for a train service between two cities were resumed on a given day, with the following data gathered
+
+1.2, 1.22, 1.23, 1.25, 1.3, 1.34, 1.36, 1.39, 1.40, 1.42, 1.45, 1.48, 1.51, 1.56
+
+Given this data, answer the following:
+
+1. Use the __median()__ function to find the median of this data set
+
+2. Use the __mean()__ function
+
+3. Comparing the mean and the median of the data set, is the data skewed-left, skewed-right or central
+
+4. Construct a histogram of this data set
+
+5. Using this histogram, decide if the data is skewed-left, skewed-right or central
+
+6. Does this agree with your answer from part 3?
+
+
+
+## Exercise 1 solutions
+
+A.
+```{r}
+times <-c(1.2, 1.22, 1.23, 1.25, 1.3, 1.34, 1.36, 1.39, 1.40, 1.42, 1.45, 1.48, 1.51, 1.56)
+
+median(times)
+```
+
+B.
+```{r}
+times <-c(1.2, 1.22, 1.23, 1.25, 1.3, 1.34, 1.36, 1.39, 1.40, 1.42, 1.45, 1.48, 1.51, 1.56)
+
+mean(times)
+```
+
+C.
+From reviewing the median(1.375) and mean(1.365), the data appears to be centralised from the two results.
+
+D.
+```{r}
+#pdf("histogramTimes.pdf")
+times <-c(1.2, 1.22, 1.23, 1.25, 1.3, 1.34, 1.36, 1.39, 1.40, 1.42, 1.45, 1.48, 1.51, 1.56)
+
+hist(times, breaks=4, axes=T,col="deepskyblue", main="histogram of hours/times" ,ylab="frequency", xlab="hours(hrs)", freq=T)
+
+```
+
+E.
+From the histogram, the data appears to be skewed to the right.
+
+F.
+From the histogram, I'll have to dissagree with the answer from part 3 as being centralised but in fact being skewed right from the diagram.
+
+
+
+### Exercise 2
+
+An electrical components manufacturer measures the resistance of a sample of 50 resistors produced during one production run. The resistances were measured as follows
+
+51.20, 50.30, 52.40, 50.24, 51.25, 49.89, 51.63, 52.84, 53.01, 49.99
+
+50.34, 50.61, 51.93, 52.25, 49.87, 50.13, 51.32, 50.43, 51.34, 52.13
+
+52.11, 56.84, 57.81, 51.33, 52.36, 50.67, 51.89, 52.13, 52.18, 50.31
+
+50.84, 51,12, 50.95, 49.98, 51.03, 52.01, 50.96, 51.02, 52.44, 51.95
+
+Given this data, answer the following:
+
+1. Sort the data according to increasing measurements of resistance
+
+2. Use the __median()__ function to find the median of this data set
+
+3. Use the __mean()__ function
+
+4. Comparing the mean and the median of the data set, is the data skewed-left, skewed-right or central
+
+5. Construct a histogram of this data set
+
+6. Using this histogram, decide if the data is skewed-left, skewed-right or central
+
+7. Does this agree with your answer from part 4?
+
+
+## Exercise 2 solutions
+
+A.
+```{r}
+resistance <-c(51.20, 50.30, 52.40, 50.24, 51.25, 49.89, 51.63, 52.84, 53.01, 49.99, 50.34, 50.61, 51.93, 52.25, 49.87, 50.13, 51.32, 50.43, 51.34, 52.13, 52.11, 56.84, 57.81, 51.33, 52.36, 50.67, 51.89, 52.13, 52.18, 50.31, 50.84, 51.12, 50.95, 49.98, 51.03, 52.01, 50.96, 51.02, 52.44, 51.95)
+
+sort(resistance)
+```
+
+B. 
+```{r}
+resistance <-c(51.20, 50.30, 52.40, 50.24, 51.25, 49.89, 51.63, 52.84, 53.01, 49.99, 50.34, 50.61, 51.93, 52.25, 49.87, 50.13, 51.32, 50.43, 51.34, 52.13, 52.11, 56.84, 57.81, 51.33, 52.36, 50.67, 51.89, 52.13, 52.18, 50.31, 50.84, 51.12, 50.95, 49.98, 51.03, 52.01, 50.96, 51.02, 52.44, 51.95)
+
+median(resistance)
+```
+
+C. 
+```{r}
+resistance <-c(51.20, 50.30, 52.40, 50.24, 51.25, 49.89, 51.63, 52.84, 53.01, 49.99, 50.34, 50.61, 51.93, 52.25, 49.87, 50.13, 51.32, 50.43, 51.34, 52.13, 52.11, 56.84, 57.81, 51.33, 52.36, 50.67, 51.89, 52.13, 52.18, 50.31, 50.84, 51.12, 50.95, 49.98, 51.03, 52.01, 50.96, 51.02, 52.44, 51.95)
+
+mean(resistance)
+```
+
+D.
+From reading the median(51.285) and mean (51.575), the data appears to be skewed to the right.
+
+E.
+```{r}
+#pdf("histogramResitance.pdf")
+resistance <-c(51.20, 50.30, 52.40, 50.24, 51.25, 49.89, 51.63, 52.84, 53.01, 49.99, 50.34, 50.61, 51.93, 52.25, 49.87, 50.13, 51.32, 50.43, 51.34, 52.13, 52.11, 56.84, 57.81, 51.33, 52.36, 50.67, 51.89, 52.13, 52.18, 50.31, 50.84, 51.12, 50.95, 49.98, 51.03, 52.01, 50.96, 51.02, 52.44, 51.95)
+
+hist(resistance, breaks=8, axes=T,col="deepskyblue", main="histogram of Resistance" ,ylab="frequency", xlab="Resistance(ohm)", freq=T)
+```
+
+F.
+From reading the data of the Histogram(resistance), the data appears to be skewed right.
+
+G.
+Yes i do agree with my previous answer from part 4 as the data is skewed right.
+
+
+
+
+### Exercise 3 
+The water quality at a water treatment facility is measured hourly by measuring the impurities present in the water in (measured in parterre-million). The following data was collected during in one 36 hour period:
+
+
+
+18, 8, 25, 13, 7, 19
+
+14, 5, 21, 23, 18, 5
+
+13, 6, 15, 21, 17, 6
+
+15, 7, 13, 5, 18, 11
+
+12, 14, 15, 16, 12, 13
+
+9, 17, 16, 19, 8, 10
+
+Given this data, answer the following:
+
+1. Sort the data in order of increasing values of impurities measured
+
+2. Use the __median()__ function to find the median of this data set
+
+3. Use the __mean()__ function
+
+4. Comparing the mean and the median of the data set, is the data skewed-left, skewed-right or central
+
+5. Construct a histogram of this data set
+
+6. Using this histogram, decide if the data is skewed-left, skewed-right or central
+
+7. Does this agree with your answer from part 4?
+
+
+## Exercise 3 solutions
+
+A.
+```{r}
+quality <-c(18, 8, 25, 13, 7, 19, 14, 5, 21, 23, 18, 5, 13, 6, 15, 21, 17, 6, 15, 7, 13, 5, 18, 11, 12, 14, 15, 16, 12, 13, 9, 17, 16, 19, 8, 10)
+
+sort(quality)
+```
+
+B.
+```{r}
+quality <-c(18, 8, 25, 13, 7, 19, 14, 5, 21, 23, 18, 5, 13, 6, 15, 21, 17, 6, 15, 7, 13, 5, 18, 11, 12, 14, 15, 16, 12, 13, 9, 17, 16, 19, 8, 10)
+
+median(quality)
+```
+
+C.
+```{r}
+quality <-c(18, 8, 25, 13, 7, 19, 14, 5, 21, 23, 18, 5, 13, 6, 15, 21, 17, 6, 15, 7, 13, 5, 18, 11, 12, 14, 15, 16, 12, 13, 9, 17, 16, 19, 8, 10)
+
+mean(quality)
+```
+
+D.
+From reading the median(13.5) and mean (13.44) the data appears to be skewed left
+
+
+E.
+```{r}
+#pdf("histogramWaterQuality.pdf")
+quality <-c(18, 8, 25, 13, 7, 19, 14, 5, 21, 23, 18, 5, 13, 6, 15, 21, 17, 6, 15, 7, 13, 5, 18, 11, 12, 14, 15, 16, 12, 13, 9, 17, 16, 19, 8, 10)
+hist(quality, breaks=8, axes=T,col="deepskyblue", main="histogram of Water Quality" ,ylab="frequency", xlab="Quality", freq=T)
+```
+
+F.
+From the histogram, the data appears skewed to the left.
+
+G.
+Yes i agree with my answer from part 4.
+
+
+
+
+# Pareto Charts
+
+A Pareto chart is a combination of a __bar chart__ and a __cumulative frequency chart__
+
+They are a useful diagnostic tool when one wishes to limit various defects, errors, delays, breakdowns in different circumstances.
+
+__Remark:__ To generate Pareto charts we need to import the __qcc__ library as follows
+
+  1. In the __Tools__ tab above, select the option __Install Packages...__
+  2. In the __Install from__ option, select __Repository(CRAN, CRANextra)__
+  3. In the __Packages__ input line type __qcc__
+  4. IN the __Install to Library__ option select your own home directory (this should be the daffodils anyhow)
+  5. Make sure __Install all dependencies__ is checked
+  
+Once installed we call the library __qcc__ as follows
+```{r}
+library(qcc)
+```
+
+
+### Example 1
+ The employees of a company were asked the reasons for late arrivals at work. The data collected were as follows:
+ 
+ * __Child Care__ 22
+ 
+ * __Emergency__ 8
+ 
+ * __Overslept__ 12
+ 
+ * __Public transport__ 15
+ 
+ * __Traffic__ 36
+ 
+ * __Weather__ 27
+ 
+ Using this data answer the following:
+ 
+ 1. Create an appropriate vector to represent this data.
+ 
+ 2. Use the function __pareto.chart()__ to generate a Pareto chart for this data.
+ 
+ 3. From the Pareto chart, determine which causes could reasonable be addressed to reduce late arrivals by at least 35%.
+ 
+1. We first create an appropriate vector of numbers to represent the data, in the usual way:
+```{r}
+Employees <- c(22,8,12,15,36,27)
+Employees
+```
+Now we create an appropriate vector of names, corresponding the these numbers as follows:
+```{r}
+Reasons <- c("Child Care", "Emergency", "Overslept", "Public Transport", "Traffic", "Weather")
+Reasons
+```
+
+* Now we re-create the __Employees__ vector by assigning it the names in the vector __Reasons__ as follows:
+```{r}
+names(Employees)<-Reasons
+```
+i.e. each entry has now been given a corresponding name.
+
+* The new __Employees__ vector is 
+
+```{r}
+Employees
+```
+and so we see each number has been assigned a corresponding reason.
+
+2. The __Pareto Chart__ for this data is given by
+
+```{r}
+pareto.chart(Employees,col="skyblue2", cumperc=seq(0,100,by=10), main="Pareto chart giving reasons for late arrivals at work")
+```
+
+* We notice that the __pareto.chart()__ function plots the frequency of each class, as opposed to the relative frequency of each class. This is easily modified by summing all frequencies in the __Employees__ vector and dividing the the vector by this number to give the __frequency density__ of each class.
+
+```{r}
+Total=sum(Employees)
+Total
+```
+
+```{r}
+Employees <- Employees/Total
+Employees
+```
+```{r}
+pareto.chart(Employees,col="skyblue2", cumperc=seq(0,100,by=10), ylab="Relative Frequency", main="Pareto chart giving reasons for late arrivals at work")
+```
+
+
+## Exercise 4
+
+A mobile phone repair shop categorized the type of repair work it carried out over a year and found the following data:
+  
+* __Cracked Screen__ 125
+* __Scratched Screen__ 228
+* __Forgotten Pass code__ 91
+* __Water Damage__ 188
+* __Battery Replacement__ 111
+* __Software Virus__ 82
+* __Phone Bricking__ 188
+* __Damaged Connector__ 41
+  
+Given this data, answer the following:
+
+1. Find the total number of repairs in the year.
+
+2. Construct a vector to represent the relative frequencies of each of these classes.
+
+3. Use this vector of relative frequencies to construct a Pareto chart of this data.
+
+4. From the Pareto chart determine the causes of phone damage owners should address to reduce repairs by at lease 25%.
+
+
+
+## Exercise 4 Solutions
+
+A.
+```{r}
+repairs <-c (125, 228, 91, 188, 111, 82, 188, 41)
+
+sum(c(125, 228, 91, 188, 111, 82, 188, 41))
+```
+
+B.
+```{r}
+Repairs <-c (125, 228, 91, 188, 111, 82, 188, 41)
+
+Reasons <-c ("cracked screen","scratched screen","forgotten passcode","water damage","battery replacement","software virus","phone bricking", "damaged connector")
+Reasons
+```
+
+```{r}
+names(Repairs)<-Reasons
+Repairs
+```
+
+
+C.
+```{r}
+pareto.chart(Repairs,col="skyblue2", cumperc=seq(0,100,by=10), main="Reasons for phone repairs")
+```
+
+D.
+To avoid risk, dont drop devices into water + do not brick devices.
+
+
+## Exercise 5
+
+A newly built apartment complex was inspected to prepare a snag list for each apartment. After inspection of apartment the complex, the following issues were found to occur with the frequency indicated:
+
+### List of Damages
+* __Cooker Disconnected__ 4
+* __Windows Not Closing__ 18
+* __Bathroom Ventilator Broken__ 9
+* __Damaged Plug Sockets__ 51
+* __Broken Light__ 29
+* __Damaged Paintwork__ 47
+* __Doors Not Locking__ 14
+* __Dampness__ 2
+* __Scratched Flooring__ 21
+
+Using this data answer the following:
+
+1. Identify the data type given.
+
+2. Construct a vector to represent the frequencies.
+
+3. Using this vector, evaluate the number of damages to be repaired in the apartment complex.
+
+4. Using the vector of frequency values, construct a Pareto chart for this data.
+
+5. From this data determine how which issues should be addressed to ensure at least 75% of damages are repaired.
+
+
+## Exercise 5 Solutions
+
+
+A.
+Its a listed data type.
+
+B.
+```{r}
+damagenumbers <-c (4,18,9,51,29,47,14,2,21)
+
+damages <-c ("cooker disconnected","windows not closing","bathroom ventilator broken","damaged plug sockets","broken lights", "damaged paintwork","doors not locking","dampness","scratched flooring")
+
+damages
+```
+
+```{r}
+names(damagenumbers)<-damages
+
+damagenumbers
+
+```
+
+
+
+C.
+```{r}
+sum(c(4,18,9,51,29,47,14,2,21))
+```
+
+D.
+
+```{r}
+pareto.chart(damagenumbers,col="firebrick", cumperc=seq(0,100,by=10), main="List of issues in apartment")
+```
+
+
+E.
+Damaged plug sockets, damaged paintwork, broken lights and scratched flooring should be avoided to ensure 75% of damages are repaired.
+
+
+

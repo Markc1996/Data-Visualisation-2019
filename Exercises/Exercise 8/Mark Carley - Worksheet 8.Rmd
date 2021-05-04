@@ -1,0 +1,643 @@
+---
+title: "Data Visualisation 2019 - Assignment 8 - Mark Carley - 20071864"
+output: html_notebook
+---
+
+####  List of R colors: http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+
+# Cluster Analysis - Part I
+* Cluster analysis allows a researcher to uncover a structure in a large set of data, without explaining why that data structure exists.
+
+* There are multiple approaches to cluster analysis, but all of them rely on comparing __similar objects__ using __multiple criteria__.
+
+* Each object may be characterised by one or several features, and each of these features is collected in __data vector__ 
+
+* The number of entries in these data vectors is called the __dimension of the vector__.
+
+* To quantify the __similarity__ of two data objects, we use a __metric__ to find the distance between the two objects along each of their dimensions.
+
+
+
+
+## Metrics for Cluster Analysis
+
+* The two primary metrics used to measure the similarity of data objects are the __Euclidean Metric__ and the __Manhattan Metric__.
+
+### The Euclidean Metric
+
+Given the data objects $\underline{x}=(x_1,x_2,\ldots,x_n)$ and $\underline{y}=(y_1,y_2,\ldots,y_n)$, then the ``distance'' between these data objects is given by
+\[
+\langle \underline{x},\underline{y}\rangle_{E}=\sqrt{\sum_{i=1}^{n}(x_{i}-y_{i})^2} = \sqrt{(x_1-y_1)^2+(x_2-y_2)^2+\cdots+(x_n-y_n)^2}.
+\]
+
+#### Remarks:
+
+1. The __smaller__ the Euclidean distance between the data objects $\underline{x}$ & $\underline{y}$, the __more similar__ the data objects. 
+
+2. When the dimensions used to characterise each data object are of varying orders of magnitude, then the Euclidean metric tends to exaggerate the effects of the larger dimensions compared to the smaller dimensions. As such, it is often a good idea to re-scale all dimensions to be of the same order of magnitude.
+
+3. When comparing data objects, it is necessary that each object have the same number of dimensions, i.e. it does not make sense to find the separation between the data objects $\underline{x}=(x_1,x_2,x_3,x_4)$ and $\underline{y}=(y_1,y_2,y_3)$.
+
+#### Example 1: 
+
+Given the data objects
+\[
+\underline{x}=(3443, 561, 23.1, 0.856)\qquad \underline{y}=(5441,397,19.3, 0.472)
+\]
+answer the following:
+
+1. Create 2 __data vectors__ to represent $\underline{x}$ and $\underline{y}$.
+
+2. Identify the number of __dimensions__ in these vectors.
+
+3. Create and __R-function__ to calculate the __Euclidean Distance__ between two arbitrary vectors.
+
+4. Find the Euclidean distance without re-scaling any of the dimensions.
+
+3. Find the Euclidean distance by re-scaling the dimensions as necessary.
+
+#### Solution
+
+__Part 1.__ The data vectors are given by
+```{r}
+x<-c(3443,561,23.1,0.856)
+y<-c(5441,397,19.3,0.472)
+x
+y
+```
+
+__Part 2.__ Each vector has __four entries__ so the dimension is __4__.
+
+__Part 3.__  To illustrate how this function should operate, we work our way from inside to outside:
+```{r}
+x-y
+```
+We see that __x-y__ returns another 4-dimensional vector, these are the differences in __each dimension__
+
+
+
+* Squaring __x-y__ we find
+```{r}
+(x-y)^2
+```
+This has taken the value in each dimension of __x-y__ and squared it.
+
+* To add these four numbers we use the __R__-function, __sum()__
+```{r}
+sum((x-y)^2)
+```
+This has added the four numbers in __(x-y)^2__.
+
+* The last step is to take the square root of this number, and we doe this using the __R__-function __sqrt()__.
+
+```{r}
+sqrt(sum((x-y)^2))
+```
+
+
+#### The Euclidean distance function
+
+Alternatively, we can create a function __ED()__ (for Euclidean Distance) as follows
+
+```{r}
+ED <- function(a,b){
+  Euclidean_Distance = sqrt(sum((a-b)^2))
+  return(Euclidean_Distance)
+} # a and b are place-holders, you an use any symbols you wish.
+```
+* The arguments _a_ and _b_ are place holders in this definition, and they represent the vectors we want to find the distance between. Any symbols may be used in place of _a_ and _b_
+
+* The Euclidean distance between __x__ and __y__ is now calculate using __ED()__
+```{r}
+ED(x,y)
+```
+* This agrees with the value we previously found.
+
+#### Remark:
+This distance is dominated by the distance between __x__ and __y__ along the __first dimension__.
+
+
+__Part 4.__ Next we re-scale each of the dimensions so they are all measured in thousands, and use the function we previously defined to calculate the Euclidean distance between these rescaled data objects
+
+```{r}
+x1<-c(3443,5610,2310,8560)
+y1<-c(5441,3970,1930,4720)
+ED(x1,y1)
+```
+#### Remark:
+In this case the distance between the data objects is measured more evenly across all dimensions.
+
+
+## The Manhattan Metric
+Given the data objects $\underline{x}=(x_1,x_2,\ldots,x_n)$ and $\underline{y}=(y_1,y_2,\ldots,y_n)$, the Manhattan distance between the data objects id given by
+\[
+\langle \underline{x}, \underline{y}\rangle_{M} = \sum_{i=1}^{n}\left\vert x_i-y_i\right\vert=\left\vert x_1-y_1\right\vert+\left\vert x_2-y_2\right\vert+\ldots+\left\vert x_n-y_n\right\vert.
+\]
+
+#### Remarks:
+
+1. Again, the smaller the Manhattan distance, the more similar the data objects.
+
+2. As with the Euclidean metric, the Manhattan distance only makes sense when the data objects $\underline{x}$ and $\underline{y}$ have the same number of dimensions.
+
+### Exercise 1:
+
+Define a function to measure the Manhattan distance between two data objects. 
+
+----------------------------------------------------------------------------------------------------------
+
+```{r}
+Manhattan_Distance <- function(a,b){
+  Distance = sqrt(sum(abs(a-b)))
+  return(Manhattan_Distance)
+}
+```
+
+#### Remark: 
+To do this you only have to modify the function __ED()__ slightly!!
+
+
+
+### Exercise 2:
+
+Given the data objects
+
+\[
+\underline{u}=(1415, 1843, 992, 875)\qquad \underline{v}=(2533, 1005, 329, 176)
+\]
+
+answer the following:
+
+1. Identify the number of dimensions characterising the data objects $\underline{u}$ and $\underline{v}$.
+
+2. Use the __Manhattan distance function__  to quantify the similarity between the two data objects $\underline{u}$ and $\underline{v}$ (there is no need to re-scale dimensions in this case).
+
+----------------------------------------------------------------------------------------------------------------------
+
+1. There's 4 dimensions in total.
+
+
+2. 
+
+
+```{r}
+u<-c(1415,1843,992,875)
+v<-c(2533,1005,329,176)
+```
+
+```{r}
+MD <- function(a,b){
+  Manhattan_Distance = sqrt(sum(abs(a-b)))
+  return(Manhattan_Distance)
+}
+
+MD(u,v)
+
+```
+    
+    
+### Example 3
+
+1. Create __12__ data vectors to represent each of the following.
+\[
+\underline{a}=(3986,1943,444)\\
+\underline{b}=(4271,1444,344)\\
+\underline{c}=(8443,2020,415)\\
+\underline{d}=(1898,1877,311)\\
+\underline{e}=(2916,1253,289)\\
+\underline{f}=(7476,1583,347)\\
+\underline{g}=(3690,2131,491)\\
+\underline{h}=(1355,1837,265)\\
+\underline{i}=(7251,1492,306)\\
+\underline{j}=(6498,1683,405)\\
+\underline{k}=(5211,1298,367)\\
+\underline{l}=(8001,1950,392)\\
+\]
+
+2. Use the __R__-function __rbind()__  to create a __matrix__ representing these vectors in a single data structure.  X
+
+3.  Use the __scale()__-function, so that all vector dimensions are of similar size.
+
+4. Use the __R__-function __dist()__ to calculate the Euclidean and Manhattan distances between these data vectors.
+
+5. Use these Euclidean and Manhattan distances to create a __heat map__ to represent these distances graphically.
+
+### Solution
+
+__Part 1.__ We begin by creating a list of data structures corresponding to the data objects given.
+
+```{r}
+a<-c(3986,1943,444)
+b<-c(4271,1444,344)
+c<-c(8443,2020,415)
+d<-c(1898,1877,311)
+e<-c(2916,1253,289)
+f<-c(7476,1583,347)
+g<-c(3690,2131,491)
+h<-c(1355,1837,265)
+i<-c(7251,1492,306)
+j<-c(6498,1683,405)
+k<-c(5211,1298,367)
+l<-c(8001,1950,392)
+```
+
+__Part 2.__ The __single__ data structure is given by:
+
+```{r}
+Data<-rbind(a,b,c,d,e,f,g,h,i,j,k,l)
+Data
+```
+
+__Part 4.__ Notice that the first two dimensions of each vector is measured in thousands, while the last dimension is measured in units of 100. To make all dimensions have the same order, we divide the first two dimensions by 1000 and the last dimension by 100. This is done using the __scale()__-function
+
+```{r}
+Scaled_Data<-scale(Data,center=F,scale=c(1000,1000,100))
+Scaled_Data
+```
+
+__Part 4.__ The __Euclidean distances__ between all of these vectors is given by:
+
+```{r}
+Dist_E<- dist(Scaled_Data,method="euclidean")
+Dist_E
+```
+
+The __Manhattan distances__ between these vectors is given by
+
+```{r}
+Dist_M<- dist(Scaled_Data,method="manhattan")
+Dist_M
+```
+
+#### Remark:
+
+By using __Scaled_Data__ the distances between the 12 objects is spread more evenly across all three dimensions.
+
+__Part 5.__
+
+* To create a heat map we first import the library __factoextra__. It may be necessary to install this package first by going to
+
+      __Tools__ $\rightarrow$ __Install__ 
+      
+      and writing __factoextra__ in the __Packages__ cell in this dialogue box.
+
+```{r}
+library("factoextra")
+```
+
+* To create the heat-map for the Euclidean distance we use the function __fviz_dist()__ as follows:
+
+```{r}
+fviz_dist(Dist_E,gradient=list(low='ivory',mid='cornflowerblue',hight='midnightblue'))
+```
+
+* Similarly, the heat-map for the Manhattan distances is given by
+
+```{r}
+fviz_dist(Dist_M,gradient=list(low='ivory',mid='cornflowerblue',hight='red'))
+```
+
+* The colours in the option __gradient__ may be chosen freely, although colours should be chosen so that distance objects appear significantly different to nearby objects.
+
+### Exercise 3
+
+Eight makes of car were compared using three different criteria:
+
+
+  1. Price (euro)    2. Engine (cc)    3. Efficiency (km/L)
+
+The data collected are given in the table below:
+
+| Make       | Price (euro) | Engine (cc) | Efficiency |
+|------------|-----------|-------------|------------|
+| Audi       | 38812     |     1968    |     22.7   |
+| BMW        | 35571     |     1995    |     23.7   |
+| Citroen    | 20451     |     1560    |     24.7   |
+| Hyundai    | 23620     |     1685    |     23.7   |
+| Jaguar     | 53693     |     1999    |     26.5   |
+| Mercedes   | 41909     |     1950    |     25.5   |
+| Mitsubishi | 28192     |     2268    |     18.8   |
+| Toyota     | 27978     |     1995    |     21.6   |
+
+Using the data in this table, answer the following:
+
+1. Create 8 __data vectors__ to represent each car make.
+
+2. Combine these data vectors using the __rbind()__ function, to create a single __data structure__.
+
+3. Rescale the dimensions of this data stricture, so each dimension is measured in the same order.
+
+4. Create a table of Euclidean and Manhattan distances for this re-scaled data structure.
+
+5. Create a heat map to represent these distances (Euclidean and Manhattan) using the function __fviz_dist()__ 
+
+
+----------------------------------------------------------------------------------------------------------
+
+1.
+
+```{r}
+audi<-c(38812,1968,22.7)
+bmw<-c(35571,1995,23.7)
+citroen<-c(20451,1560,24.7)
+hyundai<-c(23620,1685,23.7)
+jaguar<-c(53693,1999,26.5)
+mercedes<-c(41909,1950,25.5)
+mitsubishi<-c(28192,2268,18.8)
+toyota<-c(27978,1995,21.6)
+```
+
+2.
+
+```{r}
+Data1<-rbind(audi,bmw,citroen,hyundai,jaguar,mercedes,mitsubishi,toyota)
+Data1
+```
+
+3.
+
+```{r}
+Scaled_Data1<-scale(Data1,center=F,scale=c(1000,100,1))
+Scaled_Data1
+```
+
+4.
+
+```{r}
+Dist_E1<- dist(Scaled_Data1,method="euclidean")
+Dist_E1
+```
+
+```{r}
+Dist_M1<- dist(Scaled_Data1,method="manhattan")
+Dist_M1
+```
+
+5.
+
+```{r}
+fviz_dist(Dist_E1,gradient=list(low='ivory',mid='cornflowerblue',hight='lightgreen'))
+```
+
+```{r}
+fviz_dist(Dist_M1,gradient=list(low='ivory',mid='cornflowerblue',hight='red'))
+```
+
+## Distances and Heat Maps with Data Files
+
+* We can also apply the functions __dist()__ and __fvis_dist()__ to data which we import from __.csv__ files.
+
+* However, to do so, it may be necessary to modify the imported data slightly, otherwise these functions _may_ return errors, depending on the structure of the data file.
+
+### Example 4:
+
+Six makes of laptop we compared using three different criteria:
+
+  1. Storage (GB) 2. Screen (inches)  3. Ram (GB) 4. Clock-speed (GHz)
+  
+The data is available at 
+
+  __Moodle__ $\rightarrow$ __Data Visualisation__ $\rightarrow$ __Data Files__ $\rightarrow$ __LaptopData__
+  
+* Import this data using __read.csv()__ in the usual way.
+
+```{r}
+Laptops<-read.csv(file.choose())
+Laptops
+```
+
+Using this data, answer the following:
+
+__Part 1.__  __Try__ to find the Euclidean distances between these laptops using the data frame above.
+
+* We attempt to apply the __dist()__ function directly to the data structure __Laptops__
+
+```{r}
+dist(Laptops,method='euclidean')
+```
+* Notice we get an error message (NAs introduced by coercion) on the top line. This is because __dist()__ does not know how to find a distance between the entries in the column labelled __Make__.
+
+
+__Part 2.__ Modify this data structure so that it can used by the function __dist()__.
+
+* Notice there are __6 rows__ and __5 columns__ in the data structure __Laptops__. The function __dist()__ can only be applied to data frames consisting of numbers.
+
+
+* There are __two steps__ to creating the necessary data structure:
+    
+  * __Step 1.__ Extract the names of the computer makes __as characters__ from the data structure __Laptops__ using the function __as.character()__
+
+```{r}
+LaptopNames<-as.character(Laptops$Make)
+LaptopNames
+```    
+    
+    
+    
+    
+   * __Step 2.__ Create a new __data.frame()__ from __Laptops__ but __exclude__ the first column and assign the rows of the new data frame the labels in __LaptopNames__
+    
+```{r}
+LaptopData<-as.data.frame(Laptops[,-1],row.names=LaptopNames)
+LaptopData
+```
+
+* The function __dist()__ will now work with the new data frame __LaptopData__
+
+```{r}
+dist(LaptopData, method='euclidean')
+```
+
+__Part 3.__ Rescale this new data structure so that all dimensions have values between 0 and 10.
+
+* We divide the first column by 1000, the second by 10, the third by 10 and the fourth by 1 to give the re-scaled data frame
+
+```{r}
+Scaled_Laptop_Data <- scale(LaptopData,center=F,scale=c(1000,10,10,1))
+Scaled_Laptop_Data
+```
+* Now all the columns are of a similar size, and so no dimension will dominate when we calculate the distances between the laptops.
+
+__Part 4.__ Find the Euclidean and Manhattan distances in this re-scaled data structure.
+
+The __Euclidean distances__ are
+
+```{r}
+Laptop_Distances_E<-dist(Scaled_Laptop_Data,method='euclidean')
+Laptop_Distances_E
+```
+
+The __Manhattan distances__ are
+
+```{r}
+Laptop_Distances_M<-dist(Scaled_Laptop_Data,method='manhattan')
+Laptop_Distances_M
+```
+
+
+__Part 5.__ Create a heat map to represent these distances (for the Euclidean and Manhattan distances).
+
+The heat map for the Euclidean distances is 
+
+```{r}
+fviz_dist(Laptop_Distances_E,gradient=list(low='ivory',mid='cornflowerblue',hight='red'))
+```
+
+The heat map for the Manhattan distances is 
+
+```{r}
+fviz_dist(Laptop_Distances_M,gradient=list(low='ivory',mid='cornflowerblue',hight='red'))
+```
+    
+### Exercise 4:
+
+On Moodle, the file __ISEQ(16Nov2017).csv__ contains the share price in €, the market capitalisation in € Millions, and the relative value of the company to the overall market cap. of the 20 compaines on the ISEQ index.
+
+__Moodle__ $\rightarrow$ __Data Visualisation__ $\rightarrow$ __Workbook Files__ $\rightarrow$ __ISEQ(16Nov2017).csv__ 
+
+(_Source:_ http://www.isqe.ie)
+
+Using this data answer the following:
+
+1. Import the data into this __R__ workbook using __read.csv()__.
+
+2. Create an appropriate data frame from this data file which can be used by the __dist()__ function.
+
+3. Rescale the data columns of this new data frame so that all dimensions have a similar size.
+
+4. Find the Euclidean and Manhattan distances using this re-scaled data frame.
+
+5. Create a heat map to represent the Euclidean and Manhattan distances between these companies.
+
+----------------------------------------------------------------------------------------------------------
+
+1.
+
+```{r}
+iseq<-read.csv('ISEQ(16Nov2017).csv')
+iseq
+```
+
+2.
+
+```{r}
+iseqCompany<-as.character(iseq$Company)
+iseqCompany
+```
+
+
+```{r}
+iseqData<-as.data.frame(iseq[,-1],row.names=iseqCompany)
+iseqData
+```
+
+```{r}
+dist(iseqData, method='euclidean')
+```
+
+3.
+
+```{r}
+Scaled_iseq_Data <- scale(iseqData,center=F,scale=c(10,1,1))
+Scaled_iseq_Data
+```
+
+4.
+
+```{r}
+iseq_Distances_E<-dist(Scaled_iseq_Data,method='euclidean')
+iseq_Distances_E
+```
+
+```{r}
+iseq_Distances_M<-dist(Scaled_iseq_Data,method='manhattan')
+iseq_Distances_M
+```
+
+5.
+
+```{r}
+fviz_dist(iseq_Distances_E,gradient=list(low='ivory',mid='cornflowerblue',hight='red'))
+```
+
+```{r}
+fviz_dist(iseq_Distances_M,gradient=list(low='ivory',mid='cornflowerblue',hight='lightgreen'))
+```
+
+
+### Exercise 5:
+
+On Moodle, the file __EuroZoneData2017.csv__  compares the countries of the Euro Zone (excluding Malta as not all data was avaialble), using 4 different criteria
+
+  1. Population 2. GDP per capita (US\$) 3. Total Exports (US\$) 4. Total Imports (US\$)
+
+__Moodle__ $\rightarrow$ __Data Visualisation__ $\rightarrow$ __Workbook Files__ $\rightarrow$ __EuroZoneData2017.csv__ 
+
+(_Source:_ http://www.worldbank.org)
+
+Using this data answer the following:
+
+1. Import the data into this __R__ workbook using __read.csv()__.
+
+2. Create an appropriate data frame from this data file which can be used by the __dist()__ function.
+
+3. Rescale the data columns of this new data frame so that all dimensions have a similar size.
+
+4. Find the Euclidean and Manhattan distances using this re-scaled data frame.
+
+5. Create a heat map to represent the Euclidean and Manhattan distances between these countries.
+
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+1.
+
+```{r}
+eurozone<-read.csv('EuroZoneData2017.csv')
+eurozone
+```
+
+2.
+
+```{r}
+euroFrame<-as.character(eurozone$Country)
+euroFrame
+```
+
+```{r}
+euroData<-as.data.frame(eurozone[,-1],row.names=euroFrame)
+euroData
+```
+
+3.
+
+```{r}
+Scaled_euro_Data <- scale(euroData,center=F,scale=c(100000,10000,100000000,10000000))
+Scaled_euro_Data
+```
+
+4.
+
+```{r}
+euro_Distances_E<-dist(Scaled_euro_Data,method='euclidean')
+euro_Distances_E
+```
+
+```{r}
+euro_Distances_M<-dist(Scaled_euro_Data,method='manhattan')
+euro_Distances_M
+```
+
+5.
+
+```{r}
+fviz_dist(euro_Distances_E,gradient=list(low='ivory',mid='cornflowerblue',hight='red'))
+```
+
+```{r}
+fviz_dist(euro_Distances_M,gradient=list(low='ivory',mid='cornflowerblue',hight='lightgreen'))
+```
+
+
+

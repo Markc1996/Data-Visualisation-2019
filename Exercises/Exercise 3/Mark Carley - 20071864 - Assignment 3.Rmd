@@ -1,0 +1,652 @@
+---
+title: "Data Visualisation 2019 - R Workbook 3 - Mark Carley - 20071864"
+output: 
+html_document: default
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+### List of R colors:
+http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+
+# __Stem and Leaf Plots__
+
+* Given a data set, a stem and leaf plot is a very effective way of visually representing the data directly.  
+* The shape of the plot may indicate whether the data set is skewed-left, skewed-right or centered.  
+* The appearance of tails in the plot may also indicate the presence of outliers in the data set, located in the tail region.
+* In __R__ we can generate a stem and leaf plot for a data set using the __stem()__ function.
+
+## Example 1
+
+The distances traveled by a sales representative over the course of a month are given by the following data set:
+
+__Daily Distance Travelled (km)__
+
+91, 67, 58, 73, 63, 84, 88, 103, 102, 100, 59 ,89, 63, 97, 59, 78, 85, 96, 85, 134, 71, 77, 62, 87, 93
+
+Use __stem()__ to create a stem and leaf plot for this data.
+
+## _Solution_
+
+```{r}
+Distances <- c(91, 67, 58, 73, 63, 84, 88, 103, 102, 100, 59 ,89, 63, 97, 59, 78, 85, 96, 85, 134, 71, 77, 62, 87, 93)
+stem(Distances,scale=2)
+```
+* The message 
+
+<center>  _The decimal point is 1 digit(s) to the right of the |_ <center/>
+
+indicates that the decimal point appears after each digit on the right hand side.
+
+* From the shape of the plot it appears that the data is skewed right, with a possible outlier at 134km.
+
+
+
+# __Quartiles and the Median__
+
+* In lectures we used the __Tuckey Method__ of determining if a data set had mild outliers using the first and third quartiles $Q_{1}$ and $Q_{3}$ and the interquartile range $R_{IQ}$.
+
+* In __R__ we can use the function __quantiles()__ to determine the quartiles and median of a data set automatically.
+
+## Example 2
+
+Using the data given in __Example 1__, use the __quantiles()__ function to determine the quartiles and median of the data set __Distances__
+
+## _Solution_
+
+```{r}
+quantile(Distances)  
+```
+* We see that in the data set __Distances__ the quartiles and median values are 
+\\[
+Q_{1} = 67\\ \\ Q_{3} = 93\\ \\ M= 85
+\\]
+This means that
+  * One quarter of the distances are less than 67km
+  * One quarter of the distances are greater than 93km
+  * One half of the distances are less than than 85km. Equivalently, one quarter of the distances are            greater than 85km.
+
+# __Interquartile Range__
+
+* The __R__ function __IQR()__ also allows us to obtain the interquartile range from a data set.
+
+
+## Example 3
+
+Use the __IQR()__ function to obtain the interquartile range of the data set __Distances__
+
+## _Solution_
+
+```{r}
+IQR(Distances)
+```
+* This agrees with what we saw in lectures, where the interquartile range was defined as 
+\\[
+R_{IQ}=Q_3-Q_1
+\\]
+
+* Using the quantiles found in __Example 2__ we have
+\\[
+Q_1=67\\ Q_3=93 \\  \\ R_{IQ}=93-67=26
+\\]
+
+# __Outliers__
+
+* In lectures we introduced __Tukey's Criteria__ to determine if a data set had mild or extreme outliers.
+
+## __Mild Outliers__
+
+A data value $x$ is a mild outlier if
+\\[
+x< Q_1-1.5R_{IQ}
+\\]
+or if
+\\[
+ x> Q_3+1.5R_{IQ}.
+\\]
+
+* We can test for these mild outliers using the __boxplots.stats()$out__ function.
+
+## Example 4
+
+Use the function __boxplots.stats()$out__ to identify any outliers in the data set __Distances__.
+
+## _Solution_
+
+```{r}
+boxplot.stats(Distances)$out
+```
+
+------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------
+
+# Boxplots 
+
+Having found the median, the quartiles and the interquartile range, we can now use all of these parameters to construct  
+
+```{r}
+ boxplot(Distances,range=1.5,col="darkseagreen",horizontal=T,plot=T, xlab="Daily Distances (km)", main="A boxplot of daily distance traveled ")
+```
+* In this example the __range=1.5__ argument in the function sets the distance between the quartiles and the fences to be $1.5R_{IQ}$.
+
+
+
+
+
+
+
+# Exercise 1
+
+* The 2016 GDP of the top 50 economies of the world is given in the data set __GDP(50)2016.csv__, which was sourced from the [World Bank](http://databank.worldbank.org/data/home.aspx), and is  available on Moodle.
+
+* The data may be imported into the data structure which we choose to call __Data2016__ using the following command
+
+```{r}
+Data2016<-read.csv('GDP(50)2016.csv')
+```
+
+```{r}
+Data2016
+```
+
+* To extract the numerical data from this set we use __Data2016$GDP..Millions.US..__, which we choose to call GDPData
+
+```{r}
+GDPData<-Data2016$GDP..Millions.US...
+GDPData
+```
+
+Using the data given in this table, answer the following:
+
+1. Identify the data source type
+
+2. Use a stem and leaf plot to represent the data
+
+3. From the stem and leaf plot, determine if the data is skewed or centered
+
+4. Find the median of the data set
+
+5. Find the first and third quartiles ($Q_1$ and $Q_3$)
+
+6. Determine if the data set has any mild outliers
+
+7. Identify the fences for the data set
+
+8. Use a box plot to represent this data set
+
+------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+## Exercise 1 solutions
+
+1. ------------------------------------------------------------------------------------------------------------------
+
+The data source given is a discrete data type that has specific data values which is also secondary data sourced from a 3rd party.
+
+2. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+DataCountry <- c(18569100,11199145,4939384,3466757,2618886,2465454,2263523,1849970,1796187,1529760,1411246,1283162,1232088,1204616,1045998,932259,857749,770845,659827,646438,545866,511000,469509,466366,406840,405083,393436,386428,370557,348743,336297,320912,318744,306143,304905,296966,296359,294841,294054,283660,282463,247028,236785,221415,204565,202616,194559,192925,192094)
+stem(DataCountry,scale=2)
+```
+
+
+3. ------------------------------------------------------------------------------------------------------------------
+
+From the stem and leaf plot, the data appears to be skewed to the right.
+
+4. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+median(DataCountry)
+```
+
+5. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+quantile(DataCountry)
+```
+
+\\[
+Q_{1} = 296359\\ \\ Q_{3} = 1232088\\ \\ M= 406840
+\\]
+
+
+6. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+boxplot.stats(DataCountry)$out
+```
+
+7. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+IQR(DataCountry)
+```
+
+\\[
+Q_{1} = 296359\\ \\ Q_{3} = 1232088\\ \\ M= 406840 \\ IQR= 935729
+\\]
+
+
+8. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+ggplot(Data2016, aes(x ='data', y =Data2016$GDP..Millions.US...),xlab='GDP') + 
+       coord_flip()+                                                      
+       stat_boxplot(geom = "errorbar", width = 0.25,coef=1.5) +            
+       geom_boxplot(stat='boxplot',outlier.size=3,width=0.25,fill='steelblue4')+ 
+       ylab('GDP amount')+ 
+       xlab('')+ 
+       ggtitle('A box plot of GPD capita per country')+ 
+  
+       theme(plot.title=element_text(hjust=0.5)) 
+```
+
+
+
+# Box Plots with ggplot2
+
+# Exercise 2
+
+* The net Foreign Direct Investment (FDI) into Ireland between 2005 and 2017 is given in the data file __IrelandFDI__, obtained from the [World Bank](http://databank.worldbank.org/data/home.aspx), and available on Moodle.
+
+* Extract the numerical data from this data set as in __Exercise 1__ and answer the following use a __ggplot2__ to draw a box plot to represent this data set.
+
+## Solution:
+
+* To begin we must import the library containing __ggplot2__ using 
+
+```{r}
+library(ggplot2)
+```
+
+
+* Next we import the data in the ususla way:
+
+```{r}
+FDI<-read.csv('IrelandFDI.csv')
+```
+
+```{r}
+FDI
+```
+and we extract the relevant data in the usual way
+
+```{r}
+FDIData<-FDI$Net.FDI.US.
+FDIData
+```
+
+```{r}
+ggplot(FDI, aes(x ='', y = FDI$Net.FDI.US.),xlab='Net FDI into Ireland') + #Plot the data set FDI using FDI$Net.FDI.US. as y
+        coord_flip()+                                                      #Flip the chart so the bar is horizontal
+       stat_boxplot(geom = "errorbar", width = 0.25,coef=1.5) +            # Used boc plot geometry for the plot usine 1.5 as the coeffiecient for outliers as in Tukey's criteria
+       geom_boxplot(stat='boxplot',outlier.size=3,width=0.25,fill='steelblue4')+ #Select the colour for the box plot 
+       ylab('FDI ($US)')+ # Set the ylabel (actuall hte horizontal label because of coord_flip())
+       xlab('')+ # Do not include an x (vertical) label 
+       ggtitle('A box plot of FOreign Direct Investment into Ireland from 2002 to 2017 in $US')+ # Create a main title
+       theme(plot.title=element_text(hjust=0.5)) # Adjust the position of the main title
+```
+
+# Exercise 3
+
+* The CO2 Emissions of Ireland (in Metric Tons per Capita) between 1992 and 2017 is given in the data file __Ireland Emissions__, obtained from the [World Bank](http://databank.worldbank.org/data/home.aspx), and available on Moodle.
+
+* Extract the numerical data from this data set as in __Exercise 1__ and answer the following
+
+1. Identify the data source type
+
+2. Use a stem and leaf plot to represent the data
+
+3. From the stem and leaf plot, determine if the data is skewed or centered
+
+4. Find the median of the data set
+
+5. Find the first and third quartiles ($Q_1$ and $Q_3$)
+
+6. Determine if the data set has any mild outliers
+
+7. Identify the fences for the data set
+
+8. Use a box plot to represent this data set
+
+
+
+## Exercise 3 solutions
+
+```{r}
+IrelandEmissions<-read.csv('IrelandEmissions.csv')
+```
+
+
+```{r}
+IrelandEmissions
+```
+
+
+
+1. ------------------------------------------------------------------------------------------------------------------
+
+This quantitative data source given seems to be ordered thats also a secondary source. The data seems to be ordinal.
+
+2. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+IrelandEmissions <- c(8.721212,8.741301,9.100127,9.135896,9.596172,9.911617,10.384593,10.693992,10.834743,11.388231,11.041251,10.681177,10.751637,10.466152,10.099373,10.147529,9.577641,8.889011,8.783614,7.785415,7.759473,7.579949,7.378118)
+stem(IrelandEmissions,scale=2)
+```
+
+3. ------------------------------------------------------------------------------------------------------------------
+
+From the stem and leap plot above, the data appears to be skewed to the left.
+
+4. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+median(IrelandEmissions)
+```
+
+5. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+quantile(IrelandEmissions)
+```
+
+\\[
+Q_{1} = 8.762458\\ \\ Q_{3} = 10.573664\\
+\\]
+
+6. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+boxplot.stats(IrelandEmissions)$out
+```
+
+No mild Outliers.
+
+7. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+IQR(IrelandEmissions)
+```
+
+\\[
+Q_{1} = 8.762458\\ \\ Q_{3} = 10.573664\\ \\ M= 9.596172 \\ IQR= 1.811207
+\\]
+
+
+8. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+ggplot(IrelandEmissions, aes(x ='data', y =IrelandEmissions$CO2.Emissions..Ton.per.capita.),xlab='Emissions in Ireland') + 
+       coord_flip()+                                                      
+       stat_boxplot(geom = "errorbar", width = 0.25,coef=1.5) +            
+       geom_boxplot(stat='boxplot',outlier.size=3,width=0.25,fill='steelblue4')+ 
+       ylab('Emissions Levels')+ 
+       xlab('')+ 
+       ggtitle('A box plot of Emissions based in Ireland')+ 
+  
+       theme(plot.title=element_text(hjust=0.5)) 
+```
+
+
+# Exercise 4
+
+The average fuel consumption of Volkswagen Golf cars (measured in liters per 100 km), between the years 1990 - 2017 is given by the following table
+
+ | Year | Fuel Consumption (L/100km) |
+ |------|:---------------------------|
+ | 1990 | 9.3                        |
+ | 1991 | 6.7                        |
+ | 1992 | 8.5                        |
+ | 1993 | 8.1                        |
+ | 1994 | 8.0                        |
+ | 1995 | 7.1                        |
+ | 1996 | 8.2                        |
+ | 1997 | 8.3                        |
+ | 1998 | 9.0                        |
+ | 1999 | 6.8                        |
+ | 2000 | 6.4                        |
+ | 2001 | 6.5                        |
+ | 2002 | 6.5                        |
+ | 2003 | 6.4                        |
+ | 2004 | 7.5                        |
+ | 2005 | 6.6                        |
+ | 2006 | 6.6                        |
+ | 2007 | 6.7                        |
+ | 2008 | 6.9                        |
+ | 2009 | 6.2                        |
+ | 2010 | 6.2                        |
+ | 2011 | 6.0                        |
+ | 2012 | 6.5                        |
+ | 2013 | 6.8                        |
+ | 2014 | 6.4                        |
+ | 2015 | 6.4                        |
+ | 2016 | 9.2                        |
+ | 2017 | 7.8                        |  
+#### _Source: [Fuelly.com](http://www.fuelly.com/car/volkswagen/golf)_
+ 
+* Create a __.csv file__ to store this data and import it into this work book. 
+
+* Using this data, answer the following:
+
+1. Identify the data source type
+
+2. Use a stem and leaf plot to represent the data
+
+3. From the stem and leaf plot, determine if the data is skewed or centered
+
+4. Find the median of the data set
+
+5. Find the first and third quartiles ($Q_1$ and $Q_3$)
+
+6. Determine if the data set has any mild outliers
+
+7. Identify the fences for the data set
+
+8. Use a box plot to represent this data set
+
+
+## Exercise 4 solutions
+
+
+```{r}
+Fuel<-read.csv('FuelConsumption.csv')
+```
+
+```{r}
+Fuel
+```
+
+
+
+1. ------------------------------------------------------------------------------------------------------------------
+
+This appears to be am ordinal data type that also seems to be order in terms of years and fuel consumption between each year.
+
+2. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+Fuel <- c(9.3,6.7,8.5,8.1,8.0,7.1,8.2,8.3,9.0,6.8,6.4,6.5,6.5,6.4,7.5,6.6,6.6,6.7,6.9,6.2,6.0,6.5,6.8,6.4,6.4,9.2,7.8)
+stem(Fuel,scale=2)
+```
+
+
+3. ------------------------------------------------------------------------------------------------------------------
+
+From the stem and leaf plot the data appears to skewed to the right side.
+
+4. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+median(Fuel)
+```
+
+5. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+quantile(Fuel)
+```
+
+\\[
+Q_{1} = 6.50\\ \\ Q_{3} = 8.05\\
+\\]
+
+6. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+boxplot.stats(Fuel)$out
+```
+
+The data does not appear to have any mild outliers.
+
+7. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+IQR(Fuel)
+```
+
+\\[
+Q_{1} = 6.50\\ \\ Q_{3} = 8.05\\ \\ M= 6.8 \\ IQR= 1.55
+\\]
+
+
+8. ------------------------------------------------------------------------------------------------------------------
+
+
+```{r}
+ggplot(Fuel, aes(x ='data', y =Fuel$fuel.consumption),xlab='Emissions in Ireland') + 
+       coord_flip()+                                                      
+       stat_boxplot(geom = "errorbar", width = 0.25,coef=1.5) +            
+       geom_boxplot(stat='boxplot',outlier.size=3,width=0.25,fill='steelblue4')+ 
+       ylab('Fuel Emissions')+ 
+       xlab('')+ 
+       ggtitle('A box plot of Fuel consumption in Ireland')+ 
+  
+       theme(plot.title=element_text(hjust=0.5)) 
+```
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------
+
+## Comparing Data Sets
+
+* We can also use box plots to plot more than one data set on the same chart.
+
+* This is a very useful wave of comparing the median and spread of the two data sets.
+
+## Example:
+
+A class of student are divided into two groups for the purposes of sitting an exam. The results of each group are shown in the data file __Grades.csv__ available on Moodle. 
+
+* This data is imported in the ususal way 
+```{r}
+Grades<-read.csv('Grades.csv')
+```
+
+
+```{r}
+Grades<-data.frame(Grades)
+Grades
+```
+### Factoring the Data:
+
+* We use the command __as.factor()__ to indicate that the label __Group__ in the data set is used to factorise the data set:
+
+```{r}
+Grades$Group<- as.factor(Grades$Group)
+Grades
+```
+
+* Now the the data set is appropriately factorised we can plot it using __ggplot__
+```{r}
+ggplot(Grades,aes(x=Group,y=Grade,fill=Group))+                  # Plot the data frame Grades with Group on the x-axis and Grade on the y-axis
+  geom_boxplot(stat='boxplot')+                                  # Plot the data in the form of a box plot
+  coord_flip()+                                                  # Plot the boxes horizontally
+  stat_boxplot(geom='errorbar',width=0.25,coef=1.5)+             # Plot fences, coef=1.5 correspond to the 1.5 appearing in Tukey's criteria for mile outliers
+  scale_fill_manual(values=c('darkseagreen','lightskyblue3'))+   # Colour the individual boxplots
+  theme(legend.position='none')+                               # Set the position of the legend: options are 'top', 'bottom', 'left', 'right', 'none'
+  ggtitle('Box plots comparing exam grades of two different class groups')+ # Main title for the box plot
+  theme(plot.title=element_text(hjust=0.5))+                     # Centre the title
+  xlab('Group Number')+                                           # Set the y-label 
+  ylab('Exam Grade')                                             # Set the x-label: Note x and y have interchanged due to coord_flip()  
+```
+ 
+## Exercise 5:
+
+The time it take a computer to execute 10 tasks is recorder in miliseconds, and compared for two computers with clock speeds of 2.4GMHz and 4.2GHz:
+
+| Clock Speed | Task 1 | Task 2 | Task 3 | Task 4 | Task 5 | Task 6 | Task 7 | Task 8 | Task 9 | Task 10 |
+|-------------|--------|--------|--------|--------|--------|--------|--------|--------|--------|---------|
+| 2.4GHz      |  1.2ms | 2.4ms  | 3.2ms  | 3.1ms  | 7.2ms  |  7.5ms | 8.3ms  | 8.7ms  |  9.4ms |   9.1ms |
+| 4.2GHz      |  1.1ms |  2.4ms |  2.9ms | 2.7ms  |  4.3ms |  4.9ms |  4.9ms | 5.1ms  | 5.2ms  |   6.1ms |
+
+1. Create an approprate __.csv__ file to represente this data.
+
+2. Import this data and factor it appropriatly.
+
+3. Create a chart with __two__ boxplots to represent this data.
+
+4. Using the boxplot, which clock speed had the hightest median and the largest spread in executin times?
+
+
+## Exercise 5 solutions
+
+1. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+Computer<-read.csv('Computer.csv')
+```
+
+
+2. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+Computer
+```
+
+```{r}
+Computer<-data.frame(Computer)
+Computer
+```
+
+```{r}
+Computer$clock.speed<- as.factor(Computer$clock.speed)
+Computer
+```
+
+3. ------------------------------------------------------------------------------------------------------------------
+
+```{r}
+ggplot(Computer,aes(x=clock.speed,y=task,fill=clock.speed))+                  
+  geom_boxplot(stat='boxplot')+                                 
+  coord_flip()+                                                  
+  stat_boxplot(geom='errorbar',width=0.25,coef=1.5)+             
+  scale_fill_manual(values=c('darkseagreen','lightskyblue3'))+   
+  theme(legend.position='none')+                               
+  ggtitle('Box plots comparing different clock speeds with response')+
+  theme(plot.title=element_text(hjust=0.5))+                  
+  xlab('Clock Speeds')+                                     
+  ylab('Data')                                          
+```
+
+4. ------------------------------------------------------------------------------------------------------------------
+
+The 2.4 Ghz processor has the largest spread and median.
+ 

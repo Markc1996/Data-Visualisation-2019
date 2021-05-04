@@ -1,0 +1,904 @@
+---
+title: "Data Visualisation 2019 - Assignment 4 -Mark Carley - 20071864"
+output:
+  html_notebook: default
+  pdf_document: default
+---
+
+
+### List of R colors:
+
+http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+
+
+
+# The normal distribution
+
+* The __normal distribution__ is the graph of the function
+\[ f(x)=\frac{1}{\sqrt{2\pi \sigma}}e^{-\frac{(x-\mu)^2}{2\sigma}}\]
+where $\mu$ (pronounced as "mu") is the __mean__ and $\sigma$ (pronounced as "sigma"") is the __standard deviaiton__ of the distribution.
+
+
+## Example 1
+
+* The __standard__ normal distribution is the one where $\mu=0$ and $\sigma=1$, and is shown in the graph below
+
+```{r}
+X<-seq(-5,5,len=201) #Create the x-axis between -5 and +5
+P<-dnorm(X,mean=0,sd=1) # Evaluate the Normal Distribution function over the x-axis
+plot(X,P,type='l',lwd=2,col='steelblue') # Plot the Probability along th x-axis
+
+```
+* The lines of this cell have the following functions:
+    
+1. __X<-seq(-5,5,len=200)__ This creates a  sequence of $x$-values, which will form the horizontal axis. These values start at -5, and stop at +5, and the sequence has 200 points altogether.
+    
+```{r}
+X  
+```
+    
+2. __P<-dnorm(X,mean=0,sd=1)__ This evaluates the normal distribution with __mean=0__ and __standard deviation = 1__. With __mean=0__ this means the peak of the curve is at $x=0$. The $sd=1$ command determines how spread out the graph is, the larger __sd__ the more spread out the graph.
+   
+3. The last line instruct __R__ to plot __X__ on the horizontal axis and __P__ on the vertical axis. The argument __type='l'__ instructs __R__ to plot the curve as a line, __lwd=2__ indicates a __linewidth__ of 2 and __col='steelblue'__  indicates the __colour__ to plot the curve. 
+
+
+## Exercise 1
+
+Plot the normal disribution with $\mu=4$ and $\sigma=2.15$. Note that you will have to re-define an appropriate __X__-interval for this plot also. A convient way to do this so that your plot looks symmetric is to set 
+\[\mathbf{X=\text{seq}(\mu-5*\sigma,\mu+5*\sigma)}\]
+and __do not__ forget to include * when you want to denote multiplication.
+
+# Interpretation of the normal curve
+* When $x$ is __normally distributed__ with mean $\mu$ and standard deviation $\sigma$, then the __proability__ that $x$ lies between the values $x_1$ and $x_2$ is the __area__ under the normal distribution curve, between these two values.
+
+* An improtant feature of every normal distribution curve is the the __total area__ beneath the curve is always equal to 1.
+
+
+
+## Exercise 1 solutions
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+```{r}
+X<-seq(-5,5,len=201) 
+P<-dnorm(X,mean=4,sd=2.15) 
+plot(X,P,type='l',lwd=2,col='red') 
+```
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+## Example 2
+Illustrate the probability for $x$ in the intervavl $-2\leq x\leq 1$ in the normal distribution with $\mu=0$ and $\sigma=1$. Calculate this proability.
+
+```{r}
+# Part 1. Plot the normal curve again - See Example 1
+X<-seq(-5,5,len=201)
+P<-dnorm(X,mean=0,sd=1)
+plot(X,P,type='l',lwd=2,col='steelblue')
+
+# Part 2. Shade the required area.
+X1=seq(-2,1,length=201) # The interval -5<x<5
+P1=dnorm(X1,mean=0,sd=1)
+polygon(c(-2,X1,1),c(0,P1,0),col=adjustcolor("cornflowerblue",alpha.f=0.3),border=NA)
+```
+
+* The code in the cell above has the following meaning:
+
+1. __Part 1__ This code has alredy been explained in __Example 1__
+    
+2. __Part 2__ We create a new __x1__ axis between __-5__ and __-1__. We create the corresponding __y-values__ using the __dnorm()__ funciton applied to the intrval __x1__. __polygon(c(-5,x_1,-1),c(0,y1,0)) indicates that the area between __-5__ and __-1__ on the __x__-axis and between __0__ and the corresponging values of __y1__ should be filled in.      
+    
+3. __col=adjustcolor("cornflowerblue",alpha.f=0.3)__ indicates the fill color and the transparencey __alpha__ of the filling. The smaller the value of __alpha__ the more transparent the filling, where __alpha__ should always be between __0__ and __1__.
+
+
+# Probabilities
+* The probability that $x$ lies between $-\infty$ and $-1$ is found using the function __dnorm()__
+
+```{r}
+dnorm(-1,mean=0,sd=1)
+```
+
+* The probability that $x$ lies between $-\infty$ and $2$ is
+
+```{r}
+dnorm(2,mean=0,sd=1)
+```
+
+* The the probability that __x__ lies between __-1__ and __2__ is 
+```{r}
+dnorm(2,mean=0,sd=1)-dnorm(-1,mean=0,sd=1)
+```
+
+* This correspond to the shaded area shown above.
+
+# Confidence Intervals
+
+Given a population, a __Confidence Interval (CI)__ is a means of estimating a __population statistic__ from the corresponding __sample staistic__ with a certain level of confidence. For example, we may take survey data on a collection of people to estimate the average mothly salary of the people in the survey. Then based on this sample average we can estimate a range for the average slalary of all people in the population, to a certain confidence level. The range of possible values for the population average is called a confidence interval.
+
+## Example 3: 
+
+* Suppose we wish to determine the mean salary of the population of a country with a certain degree of confidence.
+
+* In practice it would be difficult, if not impossible, to collect data on the salary of everybody from the population.
+
+* Instead, we may collect salary data from numerous samples of people from the population, and then get the mean salary for each of these samples.
+
+* For each sample, the __sample mean__ would be spread with a normal distribution, whose standard deviation and mean would be close to the mean of the overall population.
+
+* We let $\bar{x}$ denote the mean salary from one of these samples, and the standard deviation of the sample be $\sigma$ (this measures how much the means are spread about the true mean).
+
+* We can now say that the true population mean lies in the interval
+\[\bar{x}\pm z_{\frac{\alpha}{2}}\frac{\sigma}{\sqrt{n}},\]
+where $n$ is the size of the sample for which the mean $\bar{x}$ was calculated.
+
+* The parameter $\alpha$ is called the __confidence parameter__ associated with the confidence level, and the number $z_{\frac{\alpha}{2}}$ is the __z-score__ associated with the parameter $\frac{\alpha}{2}$.
+
+* From a sample of 100 people, we find that the lowest salary from the sample is EUR 15000 and the highest is EUR 55000, with a mean salary of EUR 35000 and a standard deviation of EUR 2500.
+
+* We can plot the normal distribution for this data as follows:
+
+  1. We create a sample size between 15000 and 55000 (the sample range), with step size 50. We call this sample data __Sample1__
+  
+  2. We use the __dnorm()__ function to indicate that the data in __Sample1__ is __normally distributed about the mean__ where the mean is 35000 and the standard deviation is 2500.
+  
+  3. We plot the distribution using the usual __plot()__ function, with __Sample1__ on the x-axis and __Data1__ on the y-axis.
+  
+```{r}
+Sample1<-seq(15000,55000, by=50)
+Data1 <- dnorm(Sample1,mean=35000, sd=2500)
+plot(Sample1,Data1,ylab="Rel. Freq.",xlab="Salaries (EUR)",type="l",lwd=2,col="red")
+```
+## A 90% Confidence Interval
+
+* Suppose we wish to determine the __average__ salary value at a confidence level of  __90%__.
+
+* This would correspond to the salary interval which gives 90% of the area beneath the normal distribution curve above.
+
+* This number can be calculated using a normal distribution table, and finding the $z_{\alpha}$-score corresponding to $\alpha=1-0.90=0.1$.
+
+```{r}
+# Part 1. Plot the normal curve again - See Example 1
+Z0<-seq(-5,5,len=200)
+H0<-dnorm(Z0,mean=0,sd=1)
+plot(Z0,H0,type='l',lwd=2,col='steelblue',main='The 90% confidence interval')
+
+# Part 2. Shade the required area.
+x1=seq(-qnorm(0.95),qnorm(0.95),length=200)
+y1=dnorm(x1,mean=0,sd=1)
+polygon(c(-qnorm(0.95),x1,qnorm(0.95)),c(0,y1,0),col=adjustcolor("cornflowerblue",alpha.f=0.3),border=NA)
+```
+
+* When we look for a confidence interval of 90% we are looking for the values of $z$ such that 90% of the area beneath the curve, between $-z_{\frac{\alpha}{2}}$ and $z_{\frac{\alpha}{2}}$.
+
+* It also means we are looking for the $z$-values which will exclude 5% of the area in each tail, that is we are looking for the $z$-values for each of the dashed line in the plot below: 
+
+
+```{r}
+Standard<-seq(-4,4,by=0.001)
+StandardData<-dnorm(Standard,mean=0,sd=1)
+plot(Standard,StandardData,ylab="Rel. Freq.", xlab="z", type="l", lwd=2,col="red")
+segments(-qnorm(0.9),0,-qnorm(0.9),dnorm(-qnorm(0.9),mean=0,sd=1),lwd=2.5,lty=2)
+segments(qnorm(0.9),0,qnorm(0.9),dnorm(qnorm(0.9),mean=0,sd=1),lwd=2.5,lty=2)
+
+```
+* 90% of the area beneath the curve is contained __between__ the two dashed lines.
+
+* 5% of the area is in each tail to the left and right.
+
+* It also means that the area beneath the curve containing the left tail and the middle portion is 95%
+
+* To find the $z$-value corresponding to this 95 % in __*R*__ we can use the __qnorm()__ function as follows:
+```{r}
+z90=qnorm(0.95)
+z90
+```
+
+
+* In the plot above this means that 95% of the are beneath the curve is between $z=-\infty$ and $1.64485$. 
+
+* It also means that  __90%__ of the area lies, from $z=-1.644854$ to $z=-1.644854$.
+
+* For the purposes of our salary survey above, it also means 
+\[z_{\frac{\alpha}{2}}=1.644845\]
+
+* In terms of our survey we are also 90% certain that the __mean population salry__ lies in the range
+
+```{r}
+lower_bound=35000-z90*2500/sqrt(100)
+upper_bound=35000+z90*2500/sqrt(100)
+lower_bound
+upper_bound
+```
+### We are 90% confident that the avareage salary of the overall population lies in the range €34,588.79 to €35,411.21.
+
+In terms of our normal distribution plot this means, we are 90% certain the __mean population salary__ lies between the two dashed blue lines.
+```{r}
+Sample1<-seq(15000,55000, by=50)
+Data1 <- dnorm(Sample1,mean=35000, sd=2500)
+plot(Sample1,Data1,ylab="Rel. Freq.",xlab="Salaries (EUR)",type="l",lwd=2,col="red")
+abline(v=lower_bound,lwd=2,lty=2,col="blue")
+abline(v=upper_bound,lwd=2,lty=2,col="blue")
+```
+
+
+## Exercise 2
+
+A company wishes to determine the cost associated with providing health insurance for all of its employees. The company asked a sample of 35 employees how much they currently pay annually for health insurance. The data obtained revealed a sample mean premium of EUR635 with a standard deviation of EUR67. Using this data answer the following
+
+1. Find the 90%, 95%, 96% and 99% confidence intervals for the average amount spent by all customers.
+2. Plot a normal distribution for this data set showing the confidence intervals obtained.
+
+
+## Exercise 2 solutions
+
+---------------------------------------------------------------------------------------------------------------------
+
+1. 
+
+```{r}
+xbar2 <-635
+sd2<- 67
+n2<-35
+SE2<-sd2/sqrt(n2)
+```
+
+## 90% confidence interval
+
+
+```{r}
+x90<-qnorm(0.95)
+x90
+```
+
+## Lower Bound 90
+
+```{r}
+CI90_L<-xbar2-x90*SE2
+CI90_L
+```
+
+## Upper Bound 90
+
+```{r}
+CI90_H<-xbar2+x90*SE2
+CI90_H
+```
+
+## 95% confidence interval
+
+```{r}
+x95<-qnorm(0.975)
+x95
+```
+
+## Lower Bound 95
+
+```{r}
+CI95_L<-xbar2-x95*SE2
+CI95_L
+```
+
+## Upper Bound 95
+
+```{r}
+CI95_H<-xbar2+x95*SE2
+CI95_H
+```
+
+## 96% confidence interval
+
+```{r}
+x96<-qnorm(0.985)
+x96
+```
+
+## Lower Bound 96
+
+```{r}
+CI96_L<-xbar2-x96*SE2
+CI96_L
+```
+
+## Upper Bound 96
+
+```{r}
+CI96_H<-xbar2+x96*SE2
+CI96_H
+```
+
+## 99% confidence interval
+
+```{r}
+x99<-qnorm(0.995)
+x99
+```
+
+## Lower Bound 99
+
+```{r}
+CI99_L<-xbar2-x99*SE2
+CI99_L
+```
+
+## Upper Bound 99
+
+```{r}
+CI99_H<-xbar2+x99*SE2
+CI99_H
+```
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+### Plotting
+
+```{r}
+xaxis<-seq(xbar2-4*sd2,xbar2+4*sd2,by=2)
+xaxis
+```
+
+```{r}
+ydata<-dnorm(xaxis,mean=xbar2,sd=sd2)
+ydata
+```
+
+```{r}
+plot(xaxis,ydata,lwd=2,type='l',col='red')
+abline(v=CI90_L,lty=1,lwd=2,col='blue')
+abline(v=CI90_H,lty=1,lwd=2,col='blue')
+
+abline(v=CI95_L,lty=1,lwd=2,col='orange')
+abline(v=CI95_H,lty=1,lwd=2,col='orange')
+
+abline(v=CI96_L,lty=1,lwd=2,col='green')
+abline(v=CI96_H,lty=1,lwd=2,col='green')
+
+abline(v=CI99_L,lty=1,lwd=2,col='grey')
+abline(v=CI99_H,lty=1,lwd=2,col='grey')
+```
+blue = 90 , orange = 95 , green = 96 , grey = 99
+
+
+
+## Exercise 3
+
+The mean number of emails received by employees at a company was measured on a ample of 58 employees. The sample mean was found to be 21 emails per day with a standard deviation of 9. Using this data answer the following
+
+1. Find the 90%, 94%, 96% and 99% confidence intervals for the average amount spent by all customers.
+2. Plot a normal distribution for this data set showing the confidence intervals obtained.
+
+
+## Exercise 3 Solutions
+
+---------------------------------------------------------------------------------------------------------------------
+
+1.
+
+```{r}
+xbar3 <-21
+sd3<- 9
+n3<-58
+SE3<-sd3/sqrt(n3)
+```
+
+## Lower Bound 90
+
+```{r}
+CI901_L<-xbar3-x90*SE3
+CI901_L
+```
+
+## Upper Bound 90
+
+```{r}
+CI901_H<-xbar3+x90*SE3
+CI901_H
+```
+
+## Lower Bound 95
+
+```{r}
+CI952_L<-xbar3-x95*SE3
+CI952_L
+```
+
+## Upper Bound 95
+
+```{r}
+CI952_H<-xbar3+x95*SE3
+CI952_H
+```
+
+## Lower Bound 96
+
+```{r}
+CI963_L<-xbar3-x96*SE3
+CI963_L
+```
+
+## Upper Bound 96
+
+```{r}
+CI963_H<-xbar3+x96*SE3
+CI963_H
+```
+
+## Lower Bound 99
+
+```{r}
+CI994_L<-xbar3-x99*SE3
+CI994_L
+```
+
+## Upper Bound 99
+
+```{r}
+CI994_H<-xbar3+x99*SE3
+CI994_H
+```
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+2.
+
+
+```{r}
+xaxis2<-seq(xbar3-4*sd3,xbar3+4*sd3,by=2)
+xaxis2
+```
+
+```{r}
+ydata2<-dnorm(xaxis2,mean=xbar3,sd=sd3)
+ydata2
+```
+
+```{r}
+plot(xaxis2,ydata2,lwd=2,type='l',col='red')
+abline(v=CI901_L,lty=1,lwd=2,col='blue')
+abline(v=CI901_H,lty=1,lwd=2,col='blue')
+
+abline(v=CI952_L,lty=1,lwd=2,col='orange')
+abline(v=CI952_H,lty=1,lwd=2,col='orange')
+
+abline(v=CI963_L,lty=1,lwd=2,col='green')
+abline(v=CI963_H,lty=1,lwd=2,col='green')
+
+abline(v=CI994_L,lty=1,lwd=2,col='grey')
+abline(v=CI994_H,lty=1,lwd=2,col='grey')
+```
+blue = 90 , orange = 95 , green = 96 , grey = 99
+
+
+
+# Samples, Means and Standard Deviations
+
+
+## The Mean
+
+Given a data set we can calculate the mean and the standard deviation of the data-set using the functions __mean()__ and __sd()__. 
+
+
+Given a data set of size $n$, with data values $x_1,x_2,\ldots,x_n$, the mean of the data set is given by
+\[
+\bar{x}=\frac{\displaystyle{\sum_{i=1}^{n}}x_{i}}{N}.
+\]
+This can be evaluated in __R__ using the function __mean()__:
+
+## Example 2
+
+Suppose the data from a survey is given by the data set
+\[
+1.3,-4.2,1.55,6.78,4.5,3.21, 5.89,7.34,-6.88,-7.9
+\]
+Create a data structure in __R__ to represent this data set. Use the __mean()__ function to evaluate the mean of the data set.
+
+```{r}
+dataset2<-c(1.3,-4.2,1.55,6.78,4.5,3.21, 5.89,7.34,-6.88,-7.9)
+mean(dataset2)
+```
+* Hence the mean is
+\[\bar{x}=1.159\]
+
+## The Standard Deviation
+
+Given a data set we can calculate the mean and the standard deviation of the data-set using the functions __mean()__ and __sd()__.
+
+Given a data set of size $n$, with data values $x_1,x_2,\ldots,x_n$, the mean of the data set is given by
+\[
+s=\frac{\displaystyle{\sum_{i=1}^{n}}(x_{i}-\bar{x})^2}{N-1}.
+\]
+This can be evaluated in __R__ using the function __mean()__:
+
+## Example 4
+
+Evaluate the standard deviation of the data set in __Example 2__ using the __sd()__ function.
+```{r}
+sd(dataset2)
+```
+
+* Hence the standard deviation is 
+\[
+s= 5.608865
+\]
+
+
+## Example 5
+The inflation rate in Ireland between the years 1992 and 2016 is given in the data file __IrelandInflation.csv__(_Source:_ [World Bank](http://databank.worldbank.org/data/home.aspx)).  We will import this into __R__ using the usual command __read.csv(file.choose())__ as a data structure. Using this data structure we want to answer the following:
+
+1. Find the mean inflation rate between the years 1992 and 2016
+2. Find the standard deviation of this data set
+3. Find the number of data points in this data set
+4. Using these three values, find the range of possible values for the average inflation rate in Ireland over all years with 95% confidence
+5. Plot the inflation data as a normal distribution.
+
+
+### Importing the Data
+
+```{r}
+InflationData<-read.csv("IrelandInflation.csv")
+InflationData
+```
+### Creating the Data Structure
+```{r}
+Inflation<-InflationData$Inflation.Rate..
+Inflation
+```
+### Part 1 - The Mean Inflation
+
+```{r}
+xbar=mean(Inflation)
+xbar
+```
+
+
+* The mean inflation rate between 1992 and 2016 in Ireland was $\bar{x}=2.076174%$
+
+
+### Part 2 - The Standard Deviation 
+
+```{r}
+s=sd(Inflation)
+s
+```
+* The standard deviation  in the rate of inflation between 1992 and 2016 is $\sigma=2.189926$
+
+### Part - The Number of Data Points
+
+We use the __length()__ function to determine the number of data-points in __Inflation__
+```{r}
+n=length(Inflation)
+n
+```
+* There are $n=25$ data points in the data set __Inflation__
+
+### Part 4 - The 90% Confidence Interval
+* The confidence parameter $\alpha$ is given by
+\[\alpha = 1-0.95=0.05\Rightarrow \frac{\alpha}{2}=0.025\]
+
+* We now wish to find the $z_{\frac{\alpha}{2}}$ which gives an area of $0.95+0.025=0.975$ under the curve of the normal distribution. We find this $z$-score using __qnorm()__
+
+```{r}
+z0=qnorm(0.975)
+z0
+```
+
+
+* For the 95% confidence interval, we have $z_{\frac{\alpha}{2}}=1.959964$. Hence the upper and lower bound for the 95% confidence interval for the data set are
+
+```{r}
+xlower=xbar-z0*s/sqrt(n)
+xupper=xbar+z0*s/sqrt(n)
+
+xlower
+xupper
+```
+
+#### We are 95% certain that the mean inflation rate for Ireland lies in the interval 1.217739% to 2.934609%.
+
+
+### Part 5 - The Normal Distribution Plot
+
+We now plot __StandardInflation__ to give the normal distribution plot:
+  
+  1. First we create an interval appropriate  for creating a normal distribution form the data-set __Inflation__:
+    For this plot, we will make the plot range start at $\bar{x}-5\sigma$  and end at $\bar{x}+5\sigma$, with a step-size      0.0001:  
+```{r}
+Interval1=seq(xbar-5*s,xbar+5*s,by=0.0001)
+```
+  2. Next we create a normal distribution from this data with mean and standard deviation evaluated earlier:
+```{r}
+NormalDistInflation=dnorm(Interval1, mean=xbar, sd=s)
+``` 
+  3 Now we plot __NormalDistInflation__ on the y-axis and __Interval1__ on the x-axis:
+```{r}
+plot(Interval1,NormalDistInflation,ylab="Rel. Freq.",xlab="Inflation Rate %",type="l",lwd=2,col="red")
+abline(v=xlower,lwd=2,lty=2,col="blue")
+abline(v=xupper,lwd=2,lty=2,col="blue")
+```
+## Exercise 4: 
+
+* The data file __IrelandEmissions.csv__ contains the CO2 emissions, in metric tons per capital, of Ireland between 1992 and 2016.
+(_Source_: [World Bank](http://databank.worldbank.org/data/home.aspx))
+
+* Using the data in this file, create a data structure to capture the numerical data over those 25 years. 
+
+* Using this data structure answer the following:
+
+1. Find the mean inflation rate between the years 1992 and 2016
+2. Find the standard deviation of this data set
+3. Find the number of data points in this data set
+4. Using these three values, find the 90% and 99% confidence intervals for the average CO2 emissions of Ireland over all years.
+5. Plot the inflation data as a normal distribution, and indicate the confidence intervals on these plots.
+
+---------------------------------------------------------------------------------------------------------------------
+
+1.
+
+```{r}
+IrelandEmissions<-read.csv("IrelandEmissions.csv")
+IrelandEmissions
+```
+
+```{r}
+IrelandEmissions<-IrelandEmissions$CO2.Emissions..
+IrelandEmissions
+```
+
+```{r}
+xbar=mean(IrelandEmissions)
+xbar
+```
+
+The mean inflation rate is 9.541227.
+
+---------------------------------------------------------------------------------------------------------------------
+
+2.
+
+```{r}
+s=sd(IrelandEmissions)
+s
+```
+
+Standard deviatioh is 1.192195.
+
+---------------------------------------------------------------------------------------------------------------------
+
+3.
+
+```{r}
+n=length(IrelandEmissions)
+n
+```
+
+Number of data points = 23.
+
+---------------------------------------------------------------------------------------------------------------------
+
+4.
+
+```{r}
+xbar4 <-23
+sd4<- 1.192
+n4<-9.54
+SE4<-sd4/sqrt(n4)
+```
+
+## Lower Bound 90
+
+```{r}
+CI902_L<-xbar4-x90*SE4
+CI902_L
+```
+
+## Upper Bound 90
+
+```{r}
+CI902_H<-xbar4+x90*SE4
+CI902_H
+```
+
+## Lower Bound 99
+
+```{r}
+CI9942_L<-xbar4-x99*SE4
+CI9942_L
+```
+
+## Upper Bound 99
+
+```{r}
+CI9942_H<-xbar4+x99*SE4
+CI9942_H
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+5.
+
+```{r}
+xaxis3<-seq(xbar4-4*sd4,xbar4+4*sd4,by=2)
+xaxis3
+```
+
+```{r}
+ydata3<-dnorm(xaxis3,mean=xbar4,sd=sd4)
+ydata3
+```
+
+```{r}
+plot(xaxis2,ydata2,lwd=2,type='l',col='red')
+abline(v=CI902_L,lty=1,lwd=2,col='blue')
+abline(v=CI902_H,lty=1,lwd=2,col='blue')
+
+abline(v=CI9942_L,lty=1,lwd=2,col='grey')
+abline(v=CI9942_H,lty=1,lwd=2,col='grey')
+```
+
+
+
+
+# Interpretation of Confidence Intervals
+* We record some data associated with a __*population*__, given in the data set __X__ below:
+```{r}
+X=c(0.34,0.77,0.98,1.03,1.45,1.87,1.99,2.11,2.23,2.24,2.87,2.89,2.97,3.04,3.45,3.56,3.77,3.79,3.81,3.97,4.12,4.34,4.88,5.01,5.16)
+```
+
+* Obviously, the __population mean__ is easily available to us in this case:
+```{r}
+mean(X)
+```
+
+## Sampling the population
+
+* In many cases of practical interest, this mean is not available to us, and the best we can do is form a __confidence interval__ for this mean.
+
+* To form these confidence intervals, we take __samples__ of the population data.
+
+* This is implemented in __R__ as follows:
+```{r}
+n=4 # sample size
+N=10 # number of samples
+Sample<-replicate(N,sample(X,n))
+```
+* We have taken __10 Samples__ with each sample  having __4 data values__
+
+```{r}
+Sample
+```
+
+* Now we wish to take the __mean of each sample__, which we do as follows:
+```{r}
+M <- numeric(length = length(1:N))
+for (i in 1:N) {
+  M[i] <- mean(Sample[,i])
+}
+M
+```
+
+* Clearly, the mean of each sample does not match the mean of the population.
+
+
+## Confidence Intervals from the Samples
+
+* We now form the __60% Confidence Interval__ associated with each sample mean, and to do so we need the __z score__ corresponding to the 80th percentile:
+
+```{r}
+z<-qnorm(0.80,mean=0,sd=1)
+z
+```
+
+* Next we form the __standard error__ associated with the population and the samples:
+
+1. The __standard deviation__ of the population is 
+```{r}
+sigma<-sqrt(sum((X-mean(X))^2)/length(X))
+sigma
+```
+We do this because the function __sd()__ uses the formula for sample standard deviation.
+
+2. The __standard error__ is 
+```{r}
+SE<-sigma/sqrt(n)
+SE
+```
+i.e. the population standard deviation divided by the sample size.
+
+
+3. The __lower boundaries__ of the confidence intervals are now:
+```{r}
+ML<-M-z*SE
+ML
+```
+
+The __upper ends__ of the confidence intervals are:
+```{r}
+MU<-M+z*SE
+MU
+```
+
+* The 60% confidence intervals following from these 10 samples are:
+
+```{r}
+paste(ML,MU,sep=' to ')
+```
+
+__Recall:__ The actual mean of the pupulation is
+
+```{r}
+mean(X)
+```
+
+* We deliberitely chose 60% confidence intervals to highlight the point that not all confidence intervals contain the true population mean.
+
+* This gives us the correct interpretation for the 60% confidence interval:
+ 
+    * A confidence iterval either does or does not contain the true population mean.
+ 
+    * As we can see, if we take enough samples, then some of these confidence intervals will contain the mean and some will not.
+ 
+    * If we take a large enough number of samples, then on average, 60% of the confidence intervals deduced from those samples, at confidence level 60%, will contain the true mean.
+ 
+ 
+## Exercise 5:
+
+1. Using the same data set __X__, take __N=50__ samples of sample size __n=5__.
+
+2. Find the mean of each sample.
+
+3. Find the __90%__ confidence interval associated with these sample averages.
+
+4. Do all these confidence intervals contain the true population mean?
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+1. 
+
+```{r}
+X=c(0.34,0.77,0.98,1.03,1.45,1.87,1.99,2.11,2.23,2.24,2.87,2.89,2.97,3.04,3.45,3.56,3.77,3.79,3.81,3.97,4.12,4.34,4.88,5.01,5.16)
+```
+
+```{r}
+n=5 
+N=50 
+Sample<-replicate(N,sample(X,n))
+```
+
+```{r}
+Sample
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+2.
+
+```{r}
+MeanX <- numeric(length = length(1:N))
+for (i in 1:N) {
+  MeanX[i] <- mean(Sample[,i])
+}
+MeanX
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+3.
+
+```{r}
+Xinterval<-qnorm(0.975,mean=0,sd=1)
+Xinterval
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+

@@ -1,0 +1,482 @@
+---
+title: "Data Visualisation 2019 - Assignment 5 - Mark Carley - 20071864"
+output: html_notebook
+---
+
+
+### List of R colors:
+
+http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+
+# __Simple Linear Regression__
+
+* Given a set of data 
+\[
+(x_1,y_1), (x_2,y_2),\ldots,(x_n,y_n)
+\]
+a regression analysis is a means of determining if there is a __correlation__ between the $x$-data and the $y$-data.
+
+* A __Scatter Plot__ is a means of tentatively determining whether or not the data is correlated, simply by observing the shape of the plot
+
+### Example 1 - Strong Linear Correlation
+
+Plot the following data points on a scatter plot
+
+\[
+(1.2, 10.3), (1.5,10.45), (1.6, 10.79), (2.1, 10.8), (2.2,11.0), (2.4, 11.2), (2.5,11.5), (2.9, 12.2), (3.1,12.4), (3.8,13.0), (4.1,13.4)
+\]
+
+For this data set we create _two_ data vectors, one for the $x$-variables and one for the $y$-variables, and plot the result, with the $x$-data plotted along the horizontal axis, and the $y$-data plotted along the vertical axis.
+```{r}
+X1<-c(1.2,1.5,1.6,2.1,2.1,2.4,2.5,2.9,3.1,3.8,4.1)
+Y1<-c(10.3,10.45,10.79,10.8,11.0,11.2,11.5,12.2,12.4,13.0,13.4)
+plot(X1,Y1,xlab="x",ylab="y",col="red", main="Linearly Correlated Data",pch=18)
+```
+#### Remarks: 
+The argument __pch__ allows us to change the type of marker used to plot the data points. 
+
+  1. There a 25 options available, just by selecting the values from 1 to 25.
+  2. Alternatively, it is possible to set each marker to a single letter or symbol. For instance to set each marker to __£__ we could use __pch="£"__
+  
+### Correlated Data
+  * It is clear from the scatter plot that as $x$ increases the $y$ values also tend to increase.
+
+  * It also seems clear from the plot that a straight line can be drawn through the data points, which we would interpret to mean there exists a linear relationship between the $x$ and $y$ variables, of the form
+\[
+y=a +b x.
+\]
+
+
+
+### Example 2 - Non-correlated Data
+In this example we will plot the following data set
+\[
+(-1.4,2.4), (0.4,1.3), (1.4,6.5), (2.1,3.4), (4.5,12.3), (5.2, 2.1), (5.8,3.1), (6.5,5.4), (6.9, 6.7)
+\]
+
+```{r}
+X2<-c(-1.4,0.4,1.4,2.1,4.5,5.2,5.8,6.5,6.9)
+Y2<-c(2.4,1.3,6.5,3.4,12.3,2.1,3.1,13.4,6.7)
+plot(X2,Y2,xlab="x",ylab="y",col="red", main="Non-correlated Data",pch=19)
+```
+* It is clear from the scatter plot that there is no immediately obvious trend relating the $x$ and $y$ variables in this plot, in which case we say the $x$ and $y$ variables are __not correlated__.
+
+* While the scatter plot doesn't rule out a correlation between the $x$ and $y$ variables, it does give an initial indication as to whether or not a relationship exists.
+
+
+## The Line of Best Fit
+
+* Given the data set above, there are values of the estimated parameters $\hat{\beta}_0$ an $\hat{\beta}_1$ which will yield a line which best fits the points of the data plot.
+
+* One way to find a line which passes through or close to these data point is to obtain the lie slope from the first and last data points as follows:
+\[
+b=\frac{6.7-2.4}{6.9+1.4}=\frac{4.3}{8.3}=0.518.
+\]
+
+* Taking the mean of the $x$ and $y$ data, we have
+```{r}
+mean(X1)
+mean(Y1)
+```
+* This now allows us to find an estimate for the parameter $\beta_0$ as follows
+\[
+\bar{y}=a+b\bar{x}\Rightarrow 11.54909=a+0.518\times 2.481818 \Rightarrow a=10.2635.
+\]
+
+* Our first approximation at a linear model relating the $x$ and $y$ data is now given by
+\[y=10.2635+0.518x\]
+
+* We now plot this line through the data points as follows:
+\[x=0\Rightarrow y=10.2635\qquad x=5\Rightarrow y=12.8535\]
+```{r}
+X1<-c(1.2,1.5,1.6,2.1,2.1,2.4,2.5,2.9,3.1,3.8,4.1)
+Y1<-c(10.3,10.45,10.79,10.8,11.0,11.2,11.5,12.2,12.4,13.0,13.4)
+plot(X1,Y1,xlab="x",ylab="y",col="red",main="Linearly Correlated Data",pch=18)
+segments(0,10.2635,x1=5,y1=12.8535,col ="blue",lwd=2)
+```
+* Clearly, this line doesn't fit the data very well, and there are better approximations available to represent the relationship between to $x$ and $y$ data. 
+
+## The Method of Least Squares
+
+```{r}
+X1<-c(1.2,1.5,1.6,2.1,2.1,2.4,2.5,2.9,3.1,3.8,4.1)
+Y1<-c(10.3,10.45,10.79,10.8,11.0,11.2,11.5,12.2,12.4,13.0,13.4)
+plot(X1,Y1,xlab="x",ylab="y",col="red",main="Linearly Correlated Data",pch=18)
+segments(X1,Y1,x1=X1,y1=10.2635+0.518*X1,col ="darkgreen",lwd=2)
+segments(0,10.2635,x1=5,y1=12.8535,col ="blue",lwd=2)
+```
+* The __Method of Least Squares__ is method to choose values of the parameters $a$ and $b$ which returns the simple linear regression model
+\[y=a+bx.\]
+* Evaluating the values of $y$ at each of the data values $x_1,\ldots,x_{11}$ gives corresponding values $\hat{y}_1=a+bx_1,$..., $\hat{y}_{11}=a+bx_{11}$
+* The difference between these __predicted values__ and the __actual data values__ is given by
+$\hat{y}_1-y_1$,...,$\hat{y}_{11}-y_{11}$.
+* The method of least squares is the means of choosing values for $a$ and $b$ so that the __sum of the squares of these differences__ is minimised, i.e.
+\[(\hat{y}_1-y_1)^2+\ldots+(\hat{y}_{11}-y_{11})^2\]
+is the smallest value possible.
+* In terms of the graph above it means we have chosen the blue line so that the __sum of the lenghts of each green line segment squared__ is the minimum possible value. 
+* The value for $b$ is obtained by means of fairly straight forward calculus, which we omit here, but which gives the result
+\[b=\frac{n\sum_{i=1}^{n}x_iy_i-\sum_{i=1}^{n}x_i\sum_{i=1}^{n}y_i}{n\sum_{i=1}^{n}x_i^2-\left(\sum_{i=1}^{n}x_i\right)^2}.\]
+* The value of $a$ is obtained from 
+\[\bar{y}=a+b\bar{x}\Rightarrow a=\bar{y}-b\bar{x}.\]
+
+* These parameters are obtained automatically for us from the data set using the __lm()__ function:
+```{r}
+Model1<-lm(Y1 ~ X1)
+Model1
+```
+* Hence the values of the parameters are given by
+\[
+a=8.784\qquad b=1.114
+\]
+* Lastly, we can plot the simple linear regression model
+\[y=8.784+1.114x\]
+onto our scatter plot as follows:
+```{r}
+plot(X1,Y1,col="red",pch=18)
+abline(Model1,col="darkgreen")
+```
+
+## Example 3 - From Lectures
+We were given the following data relating Weekly Natural Gas Consumption in a U.S. city along with the Hourly Average Temperature in that city for the same week.
+
+| __Week__ | __Hourly Avg. Temp. ($^{\circ}$F)__     | __Weekly Natural Gas Consumption (MMcf)__ |
+|----------|-----------------------------------------|-------------------------------------------|
+|     1    |              28.0                       |                   12.4                    |
+|     2    |              28.0                       |                   11.7                    |
+|     3    |              32.5                       |                   12.4                    |
+|     4    |              39.0                       |                   10.8                    |
+|     5    |              45.9                       |                   9.4                     |
+|     6    |              57.8                       |                   9.5                     |
+|     7    |              58.1                       |                   8.0                     |
+|     8    |              62.5                       |                   7.5                     |
+
+Using this data answer the following:
+
+1. Create a data file to represent this data.
+2. Import this data into __R__.
+3. Create two data vectors corresponding to temperature and consumption.
+4. Create a scatter plot to represent this data
+5. Use the __lm()__ function to create a linear model for these data vectors.
+6. Using this model estimate the parameters $\hat{\beta}_0$ and $\hat{\beta}_1$ for the simple linear model.
+7. Plot the line of best fit along with the scatter plot for the data set.
+
+## Solution:
+
+1. The data file for this data set is available on Moodle and is called __FuelConsumption.csv__
+
+2. 
+```{r}
+FuelData<-read.csv("FuelConsumption.csv")
+```
+
+```{r}
+FuelData
+```
+3.
+```{r}
+Temp<-FuelData$Temp
+Temp
+```
+
+```{r}
+Fuel<-FuelData$Fuel
+Fuel
+```
+4. 
+```{r}
+plot(Temp,Fuel,col="red",pch=18)
+```
+
+5.
+```{r}
+FuelModel<-lm(Fuel ~ Temp)
+FuelModel
+```
+
+6.
+The parameters of the Fuel Model are
+\[a=15.8379\quad b=-0.1279.\]
+
+7.
+```{r}
+plot(Temp,Fuel,col="red",pch=18)
+abline(FuelModel,col="darkgreen")
+```
+
+# Exercises
+
+## Exercise 1 - Moodle - Problem Set 5 -Exercise 1
+Using the data table given in __Problem Set 5 -- Exercise 1__ answer the following:
+
+1. Identify the dependent and independent variables.
+2. Create a __.csv__ file to represent this data.
+3. Import this data file into __R__.
+4. Create two data vectors from these data set.
+5. Create a scatter plot using these data vectors.
+6. Use the __lm()__ function to create a linear model for these data vectors.
+7. Using this model estimate the parameters $\hat{\beta}_0$ and $\hat{\beta}_1$ for line of best fit.
+8. Plot the line of best fit along with the scatter plot for the data set.
+
+---------------------------------------------------------------------------------------------------------------------
+
+## Exercise 1 solutions
+
+1.
+
+The independed variables is the months variables.
+
+The dependent variables are both revenue and advertising.
+
+---------------------------------------------------------------------------------------------------------------------
+
+2.
+
+```{r}
+Retailer<-read.csv("retailer.csv")
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+3.
+
+```{r}
+Retailer
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+4.
+
+```{r}
+Revenue<-Retailer$revenue
+Revenue
+```
+
+```{r}
+Advertising<-Retailer$advertising
+Advertising
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+5.
+
+```{r}
+plot(Revenue,Advertising,col="red",pch=18)
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+6.
+
+```{r}
+RetailModel<-lm(Revenue ~ Advertising)
+RetailModel
+```
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+7.
+
+The parameters of the Retail Model are
+\[a=55.277\quad b=8.233.\]
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+8.
+
+```{r}
+plot(Revenue,Advertising,col="red",pch=18)
+abline(RetailModel,col="darkgreen")
+```
+
+
+## Exercise 2 - Moodle - Problem Set 5 - Exercise 2
+Using the data table given in __Problem Set 5 -- Exercise 2__ answer the following:
+
+1. Identify the dependent and independent variables.
+2. Create a __.csv__ file to represent this data.
+3. Import this data file into __R__.
+4. Create two data vectors from this data set.
+5. Create a scatter plot using these data vectors.
+6. Use the __lm()__ function to create a linear model for these data vectors.
+7. Using this model estimate the parameters $\hat{\beta}_0$ and $\hat{\beta}_1$ for line of best fit.
+8. Plot the line of best fit along with the scatter plot for the data set.
+
+---------------------------------------------------------------------------------------------------------------------
+
+## Exercise 2 Solutions
+
+---------------------------------------------------------------------------------------------------------------------
+
+1.
+
+The independ variable is company.
+
+The independent variables are both PER and PSR.
+
+---------------------------------------------------------------------------------------------------------------------
+
+2.
+
+```{r}
+Company<-read.csv("company.csv")
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+3.
+
+```{r}
+Company
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+4.
+
+```{r}
+PER<-Company$per
+PER
+```
+
+```{r}
+PSR<-Company$psr
+PSR
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+5.
+
+```{r}
+plot(PER,PSR,col="red",pch=18)
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+6.
+
+```{r}
+CompanyModel<-lm(PER ~ PSR)
+CompanyModel
+```
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+7.
+
+The parameters of the Retail Model are
+\[a=5.977\quad b=74.068.\]
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+8.
+
+```{r}
+plot(PER,PSR,col="red",pch=18)
+abline(CompanyModel,col="darkgreen")
+```
+
+
+
+## Exercise 3
+
+Using the data in the files __IrelandInflation__ and __IrelandEmissions__ available on Moodle answer the following
+
+1. Import these two data files into __R__ as two separate data structures.
+2. Extract the data for __CO2 Emissions__ and the data for __InflationRate__ as two separate data structures.
+3. Create a scatter plot for each of these data vectors.
+4. Does there appear to be correlation between inflation and CO2 emissions, from the data?
+5. Use the __lm()__ function to create a linear model for these data vectors.
+6. Use this model to estimate the parameters for the line of best fit.
+7. Plot this line of best fit along with the scatter plot. 
+
+
+## Exercise 3 solutions
+
+---------------------------------------------------------------------------------------------------------------------
+
+1.
+
+```{r}
+IrelandInflation<-read.csv("IrelandInflation.csv")
+```
+
+```{r}
+IrelandEmissions<-read.csv("IrelandEmissions.csv")
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+2.
+
+```{r}
+IrelandInflation
+```
+
+```{r}
+IrelandEmissions
+```
+
+---------------------------------------------------------------------------------------------------------------------
+
+3.
+
+```{r}
+InflationRate<-IrelandInflation$Inflation.Rate..
+InflationRate
+```
+
+```{r}
+EmissionsTon<-IrelandEmissions$CO2.Emissions..Ton.per.capita.
+EmissionsTon
+```
+
+
+```{r}
+plot(InflationRate,col="red",pch=18)
+```
+
+
+```{r}
+plot(EmissionsTon,col="red",pch=18)
+```
+
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+4.
+
+The rate of inflation scatter diagram seems to rise and fall in numbers while
+the emissions scatter chart makes a sharp rise then declines rapidly.
+
+---------------------------------------------------------------------------------------------------------------------
+
+5.
+
+```{r}
+IrelandModel<-lm(InflationRate ~ EmissionsTon)
+IrelandModel
+```
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+6.
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+7.
+
+```{r}
+plot(InflationRate,EmissionsTon,col="red",pch=18)
+abline(IrelandModel,col="darkgreen")
+```
+
